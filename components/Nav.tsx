@@ -39,9 +39,7 @@ export default function Nav() {
       <div className="hidden md:flex items-center gap-8 text-sm font-body text-[#888]">
         {[
           { label: "work", href: "/projects" },
-          { label: "writing", href: "/writing" },
           { label: "now", href: "/now" },
-          { label: "log", href: "/log" },
         ].map(({ label, href }) => (
           <Link
             key={label}
