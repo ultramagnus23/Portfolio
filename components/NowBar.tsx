@@ -1,18 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-const items = [
-  "CollegeOS launch prep",
-  "Meza backend build",
-  "Y1 CS @ Ashoka",
-  "Reading: Kleppmann DDIA",
-  "Discrete Maths — Master Theorem",
-  "Fast.ai alongside Brier Score",
-];
+import { nowMarquee } from "@/data/now";
 
 export default function NowBar() {
-  const text = items.join(" · ");
+  const text = nowMarquee.join(" · ");
 
   return (
     <div className="w-full border-t border-b border-white/10 py-3 overflow-hidden relative">
