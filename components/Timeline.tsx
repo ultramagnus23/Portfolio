@@ -13,7 +13,7 @@ const timelineItems = [
   },
   {
     year: "2022",
-    event: "CollegeApp. Built for seniors. 6,500 users showed up without being invited.",
+    event: "CollegeApp. Built for seniors. 6,000 users showed up without being invited.",
   },
   {
     year: "2023",

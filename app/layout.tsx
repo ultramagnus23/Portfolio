@@ -2,15 +2,18 @@ import type { Metadata } from "next";
 import "./globals.css";
 import CustomCursor from "@/components/CustomCursor";
 import Nav from "@/components/Nav";
+import ScrollProgress from "@/components/ScrollProgress";
 
 export const metadata: Metadata = {
-  title: "Chaitanya Tripathi — Signal",
-  description: "CS undergrad at Ashoka University. I find signal in noise. Products, data, whatever problem I'm obsessed with this month.",
+  title: "Chaitanya Tripathi — Builder & Researcher",
+  description:
+    "First-year CS + Entrepreneurship student at Ashoka University building production-scale systems — college-admissions intelligence, food-safety pipelines, restaurant analytics — and studying computational holography.",
   openGraph: {
-    title: "Chaitanya Tripathi — Signal",
-    description: "CS undergrad at Ashoka University. Builder.",
-    url: "https://ct.work",
-    siteName: "CT",
+    title: "Chaitanya Tripathi — Builder & Researcher",
+    description:
+      "Production-scale ML systems and computational-holography research. CollegeOS, FoodSafe India, Meza, HoloForge.",
+    url: "https://ctport2026.vercel.app",
+    siteName: "Chaitanya Tripathi",
   },
 };
 
@@ -33,6 +36,7 @@ export default function RootLayout({
         />
       </head>
       <body className="grain bg-base text-white antialiased">
+        <ScrollProgress />
         <CustomCursor />
         <Nav />
         {children}

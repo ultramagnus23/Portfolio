@@ -61,14 +61,21 @@ components/            # All React components
   HeroCanvas.tsx       # Three.js 3 000-particle WebGL field
   CustomCursor.tsx     # Green circle cursor with spring lerp
   Nav.tsx              # Fixed nav, transparent → dark on scroll
-  ProjectRow.tsx       # Full-width project block
+  ScrollProgress.tsx   # Signal-green scroll progress bar
+  ScrambleText.tsx     # Decode-from-noise text effect (the site's metaphor)
+  Magnetic.tsx         # Cursor-attracting wrapper for CTAs
+  InterferenceField.tsx# Mouse-reactive wave-interference canvas (holography motif)
+  ProjectCard.tsx      # Interactive expand/hover project card
+  ResearchSection.tsx  # Dedicated computational-holography section
+  ProjectRow.tsx       # Full-width project block (/projects)
   NowBar.tsx           # Scrolling marquee of current activities
   SkillCloud.tsx       # Tag cloud with proficiency sizing
   ExperienceAccordion.tsx
   LeadershipGrid.tsx
   ContactSection.tsx
 data/                  # Static TypeScript content files (no CMS)
-  projects.ts  skills.ts  experience.ts  leadership.ts  awards.ts
+  projects.ts  now.ts  research.ts  education.ts  skills.ts  experience.ts  leadership.ts  awards.ts
+hooks/                 # usePrefersReducedMotion
 ```
 
 ---
@@ -77,14 +84,13 @@ data/                  # Static TypeScript content files (no CMS)
 
 | URL | What you'll see |
 |-----|----------------|
-| `/` | Full homepage — loader → hero WebGL → all sections |
-| `/projects` | All 7 projects listed |
+| `/` | Full homepage — loader → hero → Now → Work → Research → About → Education → Contact |
+| `/projects` | All projects listed |
 | `/projects/collegeos` | CollegeOS case study |
+| `/projects/holoforge` | HoloForge (computational holography) case study |
 | `/projects/orenth` | Orenth case study |
 | `/projects/klein-b` | Klein B case study |
-| `/now` | What I'm working on right now |
-| `/writing` | Writing stubs (in progress) |
-| `/log` | Learning log entries |
+| `/now` | What I'm working on right now (driven by `data/now.ts`) |
 
 ---
 
