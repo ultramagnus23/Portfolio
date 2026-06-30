@@ -40,37 +40,37 @@ export const projects: Project[] = [
     year: 2026,
     accent: "#00FF94",
     description:
-      "Global college-discovery and application-intelligence platform. A pgvector recommendation engine narrows thousands of institutions to high-fit candidates, a Node.js chancing service estimates admit probability, and resilient Python scrapers keep deadlines and requirements fresh.",
+      "Global college-discovery and application-intelligence platform. A keyword + trigram recommendation pipeline narrows 8,200+ institutions to high-fit candidates, a Node.js chancing service estimates admit probability, and a Python scraper framework keeps deadlines and requirements current.",
     longDescription:
-      "CollegeOS turns the chaos of international applications into a single, legible system. A canonical PostgreSQL/Supabase schema unifies institutions, admissions, financials, outcomes, rankings and deadlines. On top of it sits a multi-stage recommendation pipeline — semantic retrieval over pgvector embeddings, multi-factor ranking, Reach/Target/Safety/Wildcard diversification, and explainable score breakdowns. It's the second swing at a problem my first product, CollegeApp, proved was real.",
+      "CollegeOS turns the chaos of international applications into a single, legible system. A canonical PostgreSQL/Supabase schema unifies institutions, admissions, financials, outcomes, rankings and deadlines. On top of it sits a multi-stage recommendation pipeline — keyword + trigram retrieval, multi-factor ranking, Reach/Target/Safety/Wildcard diversification, and explainable score breakdowns. pgvector semantic retrieval is on the roadmap once embedding infrastructure is in place. It's the second swing at a problem my first product, CollegeApp, proved was real.",
     problem:
       "Students applying internationally have no reliable signal about fit or chances. Counsellors give vague guidance, lists are generic, and outcomes feel random.",
     approach:
-      "Build a canonical data layer first, then layer intelligence on top: vector retrieval for fit, a transparent chancing service for probability, and scraper infrastructure that self-heals so the data never goes stale.",
+      "Build a canonical data layer first, then layer intelligence on top: keyword + trigram retrieval for fit today (pgvector on the roadmap), a transparent chancing service calibrated on stats-derived simulation, and a scraper framework that keeps data fresh.",
     built: [
-      "Canonical PostgreSQL + Supabase schema (institutions, admissions, financials, outcomes, rankings, deadlines)",
-      "pgvector semantic retrieval → multi-factor ranking → Reach/Target/Safety/Wildcard diversification, with explainability",
-      "Node.js chancing service (replaced the legacy Flask/FastAPI services)",
-      "Python scraper framework with retries, batching, schema validation and GitHub Actions automation (daily/weekly/monthly refresh)",
+      "Canonical PostgreSQL + Supabase schema (11 normalised tables: institutions, admissions, financials, outcomes, rankings, deadlines)",
+      "Keyword + trigram retrieval → multi-factor ranking → Reach/Target/Safety/Wildcard diversification with explainability",
+      "Node.js chancing service — admit probability calibrated on stats-derived simulation; switches to real labels after 200 real outcomes",
+      "Python scraper framework with retries, batching, schema validation (GitHub Actions refresh is gated at org level — scrapers exist, not yet auto-running)",
     ],
     metrics: [
       { label: "Predecessor reach", value: "6,000+ users (CollegeApp)" },
-      { label: "Coverage", value: "8+ countries of institutions" },
+      { label: "Institutions", value: "8,200+ across 8+ countries" },
       { label: "Status", value: "Pre-launch" },
     ],
     technicalDecisions: [
-      "pgvector over a separate vector DB — keep retrieval next to the canonical data, one source of truth",
-      "Canonical schema over fragmented joins — kill duplicate institution representations early",
+      "Canonical schema over fragmented joins — kill duplicate institution representations before they multiply",
+      "Keyword + trigram retrieval now, pgvector planned — ship intelligence that works today, not blocked on embedding infrastructure",
       "Node chancing service over standalone Python — one runtime, simpler deploys at student scale",
-      "GitHub Actions for scraping — free, observable, and resumable on partial failure",
+      "GitHub Actions for scraping — free, observable, and resumable on partial failure (gated at org level; next step is unblocking the Actions runner)",
     ],
     whatDidntWork:
       "The first stack fragmented fast — duplicate institution rows and separate Flask/FastAPI chancing services that drifted out of sync. Collapsing everything into a canonical schema with one chancing service was the unlock.",
     outcome:
-      "Architecture stabilising toward launch: recommendation, chancing and scraper infrastructure all wired against the canonical schema. Targeting Indian students applying internationally — a demographic with almost no reliable tools.",
+      "Architecture stable pre-launch: canonical schema, recommendation, chancing, and scraper infrastructure all wired. Two open gaps before full v1: unblocking GitHub Actions auto-refresh and replacing keyword retrieval with pgvector once embeddings are in place.",
     whatIdDoDifferently:
       "Design the canonical schema on day one. The migration away from fragmented joins cost real time.",
-    stack: ["React", "TypeScript", "Node.js", "Express", "PostgreSQL", "Supabase", "pgvector", "Python", "GitHub Actions"],
+    stack: ["React", "TypeScript", "Node.js", "Express", "PostgreSQL", "Supabase", "Python", "GitHub Actions"],
     github: "https://github.com/ultramagnus23/CollegeOS",
     liveUrl: "",
     featured: true,
@@ -86,40 +86,41 @@ export const projects: Project[] = [
     year: 2026,
     accent: "#7F77DD",
     description:
-      "Restaurant intelligence platform. Raw POS transaction data in, profit-ranked operational decisions out — menu engineering, capacity, channel profitability, price elasticity, server performance, and theft detection, fused into plain-English calls.",
+      "Restaurant intelligence platform. Raw POS transaction data in, profit-ranked operational decisions out — menu engineering, capacity, channel profitability, price elasticity, server performance, and theft detection, all surfaced as plain-English calls.",
     longDescription:
-      "Every transaction is a signal: not just what sold, but when, in what weather, paired with what, after what price change. Meza turns a restaurant's own POS history into a ranked queue of decisions — which dishes are Stars vs Dogs, where the capacity bottleneck is, which delivery channel actually makes money after fees. Built for small Indian restaurants that have data but no analyst.",
+      "Every transaction is a signal: not just what sold, but when, in what weather, paired with what, after what price change. Meza turns a restaurant's own POS history into a ranked queue of decisions — which dishes are Stars vs Dogs, where the capacity bottleneck is, which delivery channel actually makes money after fees. Currently running against uploaded CSV demo data; in active talks with first pilot restaurant for live POS integration.",
     problem:
       "Small restaurant owners in India have no accessible analytics. Existing tools show what happened; nobody tells them what to do next.",
     approach:
       "A decision engine that scores every dish and channel across multiple signal dimensions, then surfaces prioritised, plain-language recommendations — starting from a simple CSV upload, scaling to live POS integration.",
     built: [
-      "Decision engine with prioritised, impact-ranked recommendations",
-      "Menu engineering (Stars/Plowhorses/Puzzles/Dogs) with margin analysis",
+      "Decision engine with impact-ranked, plain-language recommendations across 10+ analytics modules",
+      "Menu engineering (Stars/Plowhorses/Puzzles/Dogs) with margin analysis and substitution scoring",
       "RevPASH capacity analysis, channel LTV:CAC, server-effectiveness scoring",
-      "Scenario simulator, demand-elasticity, theft/void detection, Swiggy/Zomato settlement reconciliation",
+      "Scenario simulator, demand-elasticity model, theft/void detection (Benford's Law), Swiggy/Zomato settlement reconciliation",
+      "ARIMA supply-demand forecasting, INR base + 7 currency conversions",
     ],
     metrics: [
       { label: "Analytics modules", value: "10+" },
       { label: "Currencies", value: "INR base + 7 conversions" },
-      { label: "Status", value: "In active development" },
+      { label: "Status", value: "In active development — pilot in talks" },
     ],
     technicalDecisions: [
-      "Next.js + Express + a Python ML service — UI, API and modelling cleanly separated",
-      "Prisma + SQLite for fast local iteration; schema designed to migrate to Postgres",
+      "Next.js + Express + Python ML service — UI, API and modelling cleanly separated",
+      "Prisma + SQLite for fast local iteration; schema designed to migrate to PostgreSQL for production",
       "Base currency INR with real-time conversion — built for the Indian market first",
       "CSV upload before POS APIs — get value to owners without an integration project",
     ],
     whatDidntWork:
       "Schema design is the hard part — every signal you want to capture has to be representable from day one, or you're re-modelling later.",
     outcome:
-      "Core analytics engines built and running against uploaded POS data. Next: live POS integration and a first pilot restaurant.",
+      "Core analytics engines built and running against uploaded CSV demo data. In active talks with first pilot restaurant; no live POS integration yet — the case study is honest about this. Next: live integration once pilot restaurant is confirmed.",
     whatIdDoDifferently: "Nothing yet — it's early enough to keep designing forward.",
     stack: ["Next.js", "TypeScript", "Express", "Prisma", "Python", "FastAPI", "Recharts"],
-    github: "https://github.com/ultramagnus23/RestaurantApp",
+    github: "https://github.com/ultramagnus23/Meza",
     liveUrl: "",
     featured: true,
-    hasCaseStudy: false,
+    hasCaseStudy: true,
   },
   {
     id: "03",
@@ -131,40 +132,48 @@ export const projects: Project[] = [
     year: 2026,
     accent: "#BA7517",
     description:
-      "A data pipeline that turns FSSAI and USFDA enforcement reports — locked inside scanned PDFs — into a structured, deduplicated, confidence-scored database of food contaminants mapped to regions and supply chains across India.",
+      "A 4-stage data pipeline turning FSSAI, USFDA, and AGMARKNET enforcement PDFs into a structured PostgreSQL warehouse. FastAPI layer with 8 routers. Three ML models: Random Forest district-risk scoring, Bayesian supply-chain propagation, and Benford's Law fraud detection.",
     longDescription:
-      "India's food-safety data is public but unusable: thousands of enforcement PDFs, no structure, no search. FoodSafe runs a four-stage pipeline — OCR + named-entity recognition to extract records, canonicalisation (contaminant names, units to PPB, districts to Census-2021 names, dates to ISO), cross-source deduplication, and a confidence score that gates what reaches downstream models. Orchestrated with Airflow against a PostgreSQL warehouse.",
+      "India's food-safety data is public but unusable: thousands of enforcement PDFs, no structure, no search. FoodSafe runs a four-stage pipeline — OCR + NER to extract records, canonicalisation (contaminant names, values to PPB, districts to Census-2021, dates to ISO), cross-source deduplication, and a confidence score that gates what reaches downstream models. A FastAPI layer with 8 routers exposes the warehouse; three ML models provide analytical layers on top.",
     problem:
       "Consumers and researchers can't see what's actually in regional food supply. The enforcement data is buried in scanned government PDFs.",
     approach:
-      "Treat it as a data-engineering problem. Extract from PDFs, standardise relentlessly, deduplicate across sources, and attach a confidence score so only trustworthy records inform analysis.",
+      "Treat it as a data-engineering problem. Extract from PDFs, standardise relentlessly, deduplicate across sources, attach a confidence score, and layer ML on top for risk, propagation, and fraud signals.",
     built: [
       "Stage 1 — PDF OCR + NER extraction (Tesseract + spaCy)",
       "Stage 2 — canonicalisation: contaminant aliases, values → PPB, districts → Census 2021, dates → ISO 8601",
-      "Stage 3/4 — hash-based dedup across sources + confidence scoring (base 0.70, lab/verification/range adjustments)",
-      "Full PostgreSQL schema + Airflow DAGs (FSSAI weekly, USFDA daily, AGMARKNET daily)",
+      "Stage 3/4 — hash-based dedup across sources + confidence scoring (base 0.70 with lab/verification/range adjustments; ≥ 0.75 trust gate)",
+      "Airflow DAGs orchestrating 3 source cadences (FSSAI weekly, USFDA daily, AGMARKNET daily)",
+      "FastAPI layer: 8 routers (auth, risk, user, search, fmcg, insurance, disputes, admin)",
+      "Random Forest district-risk model — ranks districts by contamination likelihood",
+      "Bayesian supply-chain propagation graph — traces how a contaminant moves through the supply network",
+      "Benford's Law fraud-detection layer — flags statistical anomalies in reported values",
+      "React SPA (CDN, no build step) for exploration",
     ],
     metrics: [
       { label: "Pipeline stages", value: "4 (extract → score)" },
       { label: "Trust gate", value: "≥ 0.75 confidence" },
       { label: "Sources", value: "FSSAI · USFDA · AGMARKNET" },
+      { label: "API routers", value: "8" },
+      { label: "ML models", value: "3 (Risk · Propagation · Fraud)" },
     ],
     technicalDecisions: [
       "Confidence scoring over hard filtering — keep low-trust records, flag them, never silently drop",
       "Canonicalise to Census-2021 districts so contaminant data joins cleanly to geography",
       "Flag cross-source duplicates instead of deleting — provenance matters for a safety dataset",
       "Airflow DAGs per source so each ingest cadence is independent and observable",
+      "Three separate ML model types — district risk (Random Forest), supply propagation (Bayesian), fraud (Benford's) — because they answer fundamentally different questions",
     ],
     whatDidntWork:
       "OCR confidence on scanned FSSAI PDFs is the bottleneck — it's why every record carries a confidence score rather than a false promise of certainty.",
     outcome:
-      "Extraction-to-warehouse pipeline built and scheduled. Next: the FastAPI query layer, a district-risk model, and a React map frontend.",
+      "Pipeline, API, and all three ML models built. Production hardening items remaining: RLS context not yet set for app.user_id in the API, needs a PostgreSQL production host. React SPA explorer is functional.",
     whatIdDoDifferently: "Annotate a fine-tuning set for the NER model earlier — generic models miss Indian lab and contaminant naming.",
-    stack: ["Python", "PostgreSQL", "Airflow", "Tesseract OCR", "spaCy", "FastAPI"],
+    stack: ["Python", "PostgreSQL", "Airflow", "Tesseract OCR", "spaCy", "FastAPI", "scikit-learn", "React"],
     github: "https://github.com/ultramagnus23/FoodSafe",
     liveUrl: "",
     featured: true,
-    hasCaseStudy: false,
+    hasCaseStudy: true,
   },
   {
     id: "04",
@@ -176,21 +185,22 @@ export const projects: Project[] = [
     year: 2026,
     accent: "#5BC8FF",
     description:
-      "A computational-holography simulation framework that models a phase-only holographic display and systematically degrades it — resolution, phase-quantization bits, viewing angle, speckle, depth planes — scoring each reconstruction with both physical (PSNR/SSIM) and perceptual metrics.",
+      "A computational-holography simulation framework that models a phase-only holographic display and systematically degrades it — resolution, phase-quantisation bits, viewing angle, speckle, depth planes — scoring each reconstruction with both physical (PSNR/SSIM) and perceptual metrics.",
     longDescription:
-      "HoloForge is the engine behind a research question: where does optical fidelity diverge from visual experience? It propagates light with the Angular-Spectrum Method, retrieves phase with Gerchberg-Saxton, then sweeps the constraints a real SLM display lives under and measures where quality actually breaks. The recurring finding: physical and perceptual quality diverge, and that gap is where display-engineering budget should be spent.",
+      "HoloForge is the engine behind a research question: where does optical fidelity diverge from visual experience? It propagates light with the Angular-Spectrum Method, retrieves phase with Gerchberg-Saxton, then sweeps the constraints a real SLM display lives under and measures where quality actually breaks. The recurring finding: physical and perceptual quality diverge, and that gap is where display-engineering budget should be spent. Working paper in progress, targeting arXiv cs.GR / eess.IV.",
     problem:
       "Holographic-display research optimises for physical fidelity metrics that don't always track what a viewer perceives. Where's the real perceptual cliff for each degradation?",
     approach:
       "Build a controllable simulator, sweep one degradation axis at a time, and compare physical (PSNR, SSIM) against a perceptual proxy to find the divergence points.",
     built: [
       "Wave-optics core — Angular-Spectrum propagation + Gerchberg-Saxton phase retrieval (NumPy/SciPy)",
-      "Degradation suite — resolution, phase-bits (8→1), colour, viewing-angle bandwidth, depth planes, speckle",
-      "Metrics — PSNR, SSIM, LPIPS-style perceptual proxy, exported to a consolidated CSV",
+      "Degradation suite — resolution (64×64 → 512×512), phase-bits (8→1), colour channels, viewing-angle bandwidth, depth planes (1→5), speckle (σ 0–0.3)",
+      "Metrics pipeline — PSNR, SSIM, LPIPS-style perceptual proxy, exported to consolidated CSV for analysis",
       "Experiment runner + interactive notebook generating side-by-side comparison figures",
     ],
     metrics: [
       { label: "2-bit phase", value: "SSIM 0.93 — holds up" },
+      { label: "1-bit phase", value: "SSIM 0.003 — cliff" },
       { label: "25% viewing angle", value: "SSIM 0.97 — near-lossless" },
       { label: "Degradation axes", value: "6 swept" },
     ],
@@ -201,9 +211,9 @@ export const projects: Project[] = [
       "Pure NumPy/SciPy core — reproducible and dependency-light for the preprint",
     ],
     whatDidntWork:
-      "1-bit phase quantization is a true cliff (SSIM collapses to ~0.003) while 2-bit survives — the kind of non-obvious threshold the framework exists to surface.",
+      "1-bit phase quantisation is a true cliff (SSIM collapses to ~0.003) while 2-bit survives — the kind of non-obvious threshold the framework exists to surface.",
     outcome:
-      "Simulation framework and degradation results complete; writing up a comparative study toward an arXiv preprint (cs.GR / eess.IV). Next core experiment: gradient-descent phase retrieval with PyTorch autograd, benchmarked against Gerchberg-Saxton.",
+      "Simulation framework and degradation results complete. Working paper in progress — targeting arXiv (cs.GR / eess.IV), not yet submitted. Next experiment: gradient-descent phase retrieval with PyTorch autograd, benchmarked against Gerchberg-Saxton.",
     whatIdDoDifferently: "Build the gradient-descent solver alongside GS from the start, so every sweep compares both retrieval methods.",
     stack: ["Python", "NumPy", "SciPy", "scikit-image", "Matplotlib", "OpenCV", "Jupyter"],
     github: "https://github.com/ultramagnus23/HoloForge",

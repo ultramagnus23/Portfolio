@@ -9,9 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        signal: "#00FF94",
-        base: "#0a0a0a",
-        muted: "#888888",
+        signal:  "#00FF94",
+        phase:   "#5E8CDB",
+        base:    "#0a0a0a",
+        surface: "#111213",
+        dim:     "#1e1e1e",
+        muted:   "#6b7280",
       },
       fontFamily: {
         display: ["Clash Display", "sans-serif"],
