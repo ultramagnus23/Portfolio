@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import AudioToggle from "@/components/AudioToggle";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -59,6 +60,8 @@ export default function Nav() {
           <span className="w-2 h-2 rounded-full bg-signal animate-pulse" />
           {copied ? "copied." : "available"}
         </button>
+
+        <AudioToggle />
       </div>
     </motion.nav>
   );

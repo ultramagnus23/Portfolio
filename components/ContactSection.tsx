@@ -75,7 +75,7 @@ export default function ContactSection() {
           </a>
 
           <a
-            href="https://linkedin.com/in/chaitanya-tripathi"
+            href="https://www.linkedin.com/in/chaitanya-tripathi-cs/"
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono text-[#888] hover:text-white transition-colors"

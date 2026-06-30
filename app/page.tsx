@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, Suspense, lazy } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
 import Loader from "@/components/Loader";
 import NowBar from "@/components/NowBar";
@@ -14,12 +14,12 @@ import SkillCloud from "@/components/SkillCloud";
 import ExperienceAccordion from "@/components/ExperienceAccordion";
 import LeadershipGrid from "@/components/LeadershipGrid";
 import ContactSection from "@/components/ContactSection";
+import WavefrontCanvas from "@/components/WavefrontCanvas";
 import { currentProjects, earlierProjects } from "@/data/projects";
 import { now, nowLastUpdated } from "@/data/now";
 import { education } from "@/data/education";
 import { awards } from "@/data/awards";
-
-const HeroCanvas = lazy(() => import("@/components/HeroCanvas"));
+import { AudioController } from "@/lib/audio";
 
 function SectionHeading({ children, eyebrow }: { children: string; eyebrow?: string }) {
   return (
@@ -36,281 +36,469 @@ function SectionHeading({ children, eyebrow }: { children: string; eyebrow?: str
   );
 }
 
+function ChapterLabel({ n, label }: { n: string; label: string }) {
+  return (
+    <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40 mb-6">
+      {n} — {label}
+    </p>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HomeContent — mounts only after Loader completes so all refs are hydrated
+// when useScroll reads them.
+// ─────────────────────────────────────────────────────────────────────────────
+function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<number> }) {
+  const ch1Ref = useRef<HTMLDivElement>(null);
+  const ch2Ref = useRef<HTMLDivElement>(null);
+  const ch3Ref = useRef<HTMLDivElement>(null); // Systems — projects
+  const ch4Ref = useRef<HTMLDivElement>(null); // Research
+  const ch5Ref = useRef<HTMLDivElement>(null); // Transmission — rest + contact
+
+  const { scrollYProgress: ch1Progress } = useScroll({ target: ch1Ref, offset: ["start start", "end end"] });
+  const { scrollYProgress: ch2Progress } = useScroll({ target: ch2Ref, offset: ["start start", "end end"] });
+  const { scrollYProgress: ch3Progress } = useScroll({ target: ch3Ref, offset: ["start end", "end end"] });
+  const { scrollYProgress: ch4Progress } = useScroll({ target: ch4Ref, offset: ["start end", "end end"] });
+  const { scrollYProgress: ch5Progress } = useScroll({ target: ch5Ref, offset: ["start end", "end end"] });
+
+  // Drive WavefrontCanvas progress across all five chapters:
+  // Ch1: 0.0–0.2  Ch2: 0.2–0.4  Ch3: 0.4–0.65  Ch4: 0.65–0.85  Ch5: 0.85–1.0
+  useMotionValueEvent(ch1Progress, "change", (v) => {
+    progressRef.current = v * 0.2;
+    if (v > 0.1) AudioController.instance.setChapter(1);
+  });
+  useMotionValueEvent(ch2Progress, "change", (v) => {
+    progressRef.current = 0.2 + v * 0.2;
+    if (v > 0.05) AudioController.instance.setChapter(2);
+  });
+  useMotionValueEvent(ch3Progress, "change", (v) => {
+    progressRef.current = 0.4 + v * 0.25;
+    if (v > 0.05) AudioController.instance.setChapter(3);
+  });
+  useMotionValueEvent(ch4Progress, "change", (v) => {
+    progressRef.current = 0.65 + v * 0.2;
+    if (v > 0.05) AudioController.instance.setChapter(4);
+  });
+  useMotionValueEvent(ch5Progress, "change", (v) => {
+    progressRef.current = 0.85 + v * 0.15;
+    if (v > 0.05) AudioController.instance.setChapter(5);
+  });
+
+  // Ch2 text reveal — direct DOM refs updated by a scroll listener.
+  // useTransform → opacity has a known Framer Motion issue where the CSS
+  // opacity property gets initialised to 0 and never re-applied reactively;
+  // direct DOM writes avoid this entirely.
+  const ch2EyebrowRef = useRef<HTMLParagraphElement>(null);
+  const ch2L1Ref      = useRef<HTMLParagraphElement>(null);
+  const ch2L2Ref      = useRef<HTMLParagraphElement>(null);
+  const ch2L3Ref      = useRef<HTMLParagraphElement>(null);
+  const ch2CtaRef     = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ss = (e0: number, e1: number, x: number) => {
+      const t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0)));
+      return t * t * (3 - 2 * t);
+    };
+    const update = () => {
+      const container = ch2Ref.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const track = container.offsetHeight - window.innerHeight;
+      const p = Math.max(0, Math.min(1, -rect.top / track));
+
+      const applyEl = (el: HTMLElement | null, op: number, y?: number) => {
+        if (!el) return;
+        el.style.opacity = String(op);
+        if (y !== undefined) el.style.transform = `translateY(${y}px)`;
+      };
+
+      applyEl(ch2EyebrowRef.current, ss(0, 0.12, p));
+      applyEl(ch2L1Ref.current, ss(0.10, 0.28, p), 36 * (1 - ss(0.10, 0.28, p)));
+      applyEl(ch2L2Ref.current, ss(0.28, 0.48, p), 36 * (1 - ss(0.28, 0.48, p)));
+      applyEl(ch2L3Ref.current, ss(0.48, 0.68, p), 36 * (1 - ss(0.48, 0.68, p)));
+      applyEl(ch2CtaRef.current,  ss(0.72, 0.88, p));
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => window.removeEventListener("scroll", update);
+  }, [ch2Ref]);
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+      {/* Fixed wavefront canvas */}
+      <WavefrontCanvas progressRef={progressRef} />
+
+      <main style={{ position: "relative", zIndex: 2 }}>
+
+        {/* ───────────────────────────────────────────────────────────────────
+            CHAPTER 1 — SIGNAL
+            300vh wrapper; section is sticky so it holds while you scroll through
+            ─────────────────────────────────────────────────────────────────── */}
+        <div ref={ch1Ref} style={{ height: "300vh" }}>
+          <section
+            id="chapter-1"
+            className="relative flex flex-col justify-center overflow-hidden"
+            style={{ position: "sticky", top: 0, height: "100vh" }}
+          >
+            <div className="relative z-10 px-6 md:px-16 pt-24">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                <ChapterLabel n="01" label="Signal" />
+                <p className="text-signal text-xs tracking-[0.3em] uppercase font-mono mb-6">
+                  Builder · Researcher · Ashoka University
+                </p>
+              </motion.div>
+
+              <ScrambleText
+                as="h1"
+                trigger="mount"
+                speed={36}
+                text="Chaitanya Tripathi."
+                className="font-display font-bold text-[clamp(44px,8vw,96px)] text-white leading-[0.95] mb-6 block max-w-4xl"
+              />
+
+              <motion.p
+                className="text-[#999] font-body text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7, duration: 0.6 }}
+              >
+                I build production-scale systems — college-admissions intelligence, food-safety
+                pipelines, restaurant analytics — and study the physics underneath them, like where
+                a hologram stops looking real.
+              </motion.p>
+
+              <motion.div
+                className="flex flex-wrap items-center gap-4"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.85, duration: 0.5 }}
+              >
+                <Magnetic>
+                  <a
+                    href="#work"
+                    className="inline-block border border-signal text-signal px-6 py-2.5 font-body text-sm hover:bg-signal hover:text-black transition-colors"
+                  >
+                    View work ↓
+                  </a>
+                </Magnetic>
+                <Magnetic>
+                  <a
+                    href="#research"
+                    className="inline-block border border-white/20 text-white px-6 py-2.5 font-body text-sm hover:border-white transition-colors"
+                  >
+                    Read the research →
+                  </a>
+                </Magnetic>
+              </motion.div>
+            </div>
+
+            <motion.div
+              className="absolute bottom-8 left-6 md:left-16"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            >
+              <div className="w-px h-12 bg-signal/50" />
+            </motion.div>
+          </section>
+        </div>
+
+        {/* ───────────────────────────────────────────────────────────────────
+            CHAPTER 2 — RECONSTRUCTION
+            300vh wrapper; sticky section with scroll-driven text reveal
+            ─────────────────────────────────────────────────────────────────── */}
+        <div ref={ch2Ref} style={{ height: "300vh" }}>
+          <section
+            id="chapter-2"
+            className="relative flex flex-col justify-center"
+            style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}
+          >
+            <div className="relative z-10 px-6 md:px-16 pt-20 space-y-8 max-w-2xl">
+              <p
+                ref={ch2EyebrowRef}
+                className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40"
+                style={{ opacity: 0 }}
+              >
+                02 — Reconstruction
+              </p>
+
+              <p
+                ref={ch2L1Ref}
+                className="text-white/85 font-body leading-[1.8] text-lg md:text-xl"
+                style={{ opacity: 0, transform: "translateY(36px)" }}
+              >
+                Here&apos;s the throughline, if you want one: I keep building systems that make
+                something messy legible. CollegeApp started it — I was sixteen, six thousand people
+                showed up, and I learned a problem is only real if strangers care. CollegeOS is the
+                serious version. Meza does it for restaurants; FoodSafe does it for the food itself,
+                pulling toxins out of government PDFs nobody reads.
+              </p>
+
+              <p
+                ref={ch2L2Ref}
+                className="text-white/85 font-body leading-[1.8] text-lg md:text-xl"
+                style={{ opacity: 0, transform: "translateY(36px)" }}
+              >
+                But I don&apos;t think of myself as only a builder. I&apos;ve spent time recording
+                the soundscape around Jama Masjid — the azaan, the pigeons, a thousand overlapping
+                conversations — trying to compose <em>with</em> a place instead of about it. I design
+                murder-mystery games for my friends, which is really just systems design with
+                suspects. And lately I&apos;m obsessed with holographic displays — not as a product,
+                just because the question of when a fake image starts fooling a real eye is genuinely
+                beautiful to me.
+              </p>
+
+              <p
+                ref={ch2L3Ref}
+                className="text-white/85 font-body leading-[1.8] text-lg md:text-xl"
+                style={{ opacity: 0, transform: "translateY(36px)" }}
+              >
+                I&apos;m nineteen. The actual skill is finding signal in noise — whether the noise
+                is admissions data, a POS export, or a 532-nanometre wavefront. If you&apos;re
+                building something that needs that, let&apos;s talk.
+              </p>
+
+              <div ref={ch2CtaRef} className="flex gap-6 pt-2" style={{ opacity: 0 }}>
+                <a href="#work" className="font-mono text-sm text-signal hover:text-white transition-colors">
+                  See the work ↓
+                </a>
+                <a href="#contact" className="font-mono text-sm text-[#555] hover:text-white transition-colors">
+                  Get in touch →
+                </a>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* ───────────────────────────────────────────────────────────────────
+            CHAPTER 3 — SYSTEMS  (canvas dims so cards are readable)
+            ─────────────────────────────────────────────────────────────────── */}
+        <div ref={ch3Ref} id="content-after-chapters">
+          <NowBar />
+
+          {/* Sticky chapter label — rides the top edge of ch3 while you scroll */}
+          <div
+            className="sticky top-0 z-20 flex items-center gap-4 px-6 md:px-16 py-2 border-b border-white/5"
+            style={{ background: "rgba(10,10,10,0.85)", backdropFilter: "blur(8px)" }}
+          >
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40 pointer-events-none">
+              03 — Systems
+            </span>
+            <div className="flex-1 h-px bg-signal/10" />
+          </div>
+
+          {/* NOW */}
+          <section id="now" className="py-24 px-6 md:px-16 border-t border-white/10">
+            <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+              <SectionHeading eyebrow="Now">What I&apos;m on this month</SectionHeading>
+              <span className="font-mono text-xs text-[#555] mb-12">Updated {nowLastUpdated}</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
+              {now.map((item) => (
+                <motion.div
+                  key={item.heading}
+                  className="border-l-2 border-signal/30 pl-6"
+                  initial={{ opacity: 0, x: -15 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.4 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <h3 className="font-display font-bold text-lg text-signal mb-2">{item.heading}</h3>
+                  <p className="text-[#999] font-body leading-relaxed">{item.content}</p>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* SELECTED WORK */}
+          <section id="work" className="py-24 px-6 md:px-16 border-t border-white/10">
+            <SectionHeading eyebrow="Selected work">Things I&apos;ve built</SectionHeading>
+            <p className="text-[#888] font-body -mt-6 mb-12">
+              Currently shipping. Click any card to open the technical breakdown.
+            </p>
+            <div className="grid grid-cols-1 gap-5">
+              {currentProjects.map((project, i) => (
+                <ProjectCard key={project.id} project={project} index={i} />
+              ))}
+            </div>
+
+            <div className="mt-20">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-[#666] mb-6">
+                Earlier — the track record
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {earlierProjects.map((p, i) => (
+                  <motion.div
+                    key={p.id}
+                    className="border border-white/10 p-6 hover:bg-white/[0.02] transition-colors group"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ delay: i * 0.08, duration: 0.4 }}
+                  >
+                    <div className="flex items-baseline justify-between mb-3">
+                      <h4 className="font-display font-bold text-xl text-white group-hover:text-signal transition-colors">
+                        {p.title}
+                      </h4>
+                      <span className="font-mono text-xs text-[#555]">{p.year}</span>
+                    </div>
+                    <p className="text-[#888] font-body text-sm leading-relaxed mb-4">{p.tagline}</p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1">
+                      {p.metrics.slice(0, 2).map((m) => (
+                        <span key={m.label} className="font-mono text-[11px] text-[#777]">
+                          <span style={{ color: p.accent }}>{m.value}</span> · {m.label}
+                        </span>
+                      ))}
+                    </div>
+                    {p.hasCaseStudy && (
+                      <Link
+                        href={`/projects/${p.slug}`}
+                        className="inline-block mt-4 font-mono text-xs text-signal hover:text-white transition-colors"
+                      >
+                        case study →
+                      </Link>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+              <Link
+                href="/projects"
+                className="inline-block mt-8 font-body text-sm text-[#888] hover:text-signal transition-colors"
+              >
+                All projects, full record →
+              </Link>
+            </div>
+          </section>
+        </div>
+
+        {/* ───────────────────────────────────────────────────────────────────
+            CHAPTER 4 — RESEARCH  (canvas re-brightens + shifts signal→phase blue)
+            ─────────────────────────────────────────────────────────────────── */}
+        <div ref={ch4Ref} id="research">
+          <div
+            className="sticky top-0 z-20 flex items-center gap-4 px-6 md:px-16 py-2 border-b border-white/5"
+            style={{ background: "rgba(10,10,10,0.85)", backdropFilter: "blur(8px)" }}
+          >
+            <span
+              className="font-mono text-[10px] tracking-[0.3em] uppercase pointer-events-none"
+              style={{ color: "rgba(94,140,219,0.5)" }}
+            >
+              04 — Research
+            </span>
+            <div className="flex-1 h-px" style={{ background: "rgba(94,140,219,0.12)" }} />
+          </div>
+          <ResearchSection />
+        </div>
+
+        {/* ───────────────────────────────────────────────────────────────────
+            CHAPTER 5 — TRANSMISSION  (canvas fades toward black at the close)
+            ─────────────────────────────────────────────────────────────────── */}
+        <div ref={ch5Ref}>
+          <div
+            className="sticky top-0 z-20 flex items-center gap-4 px-6 md:px-16 py-2 border-b border-white/5"
+            style={{ background: "rgba(10,10,10,0.85)", backdropFilter: "blur(8px)" }}
+          >
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/20 pointer-events-none">
+              05 — Transmission
+            </span>
+            <div className="flex-1 h-px bg-white/5" />
+          </div>
+
+          {/* TIMELINE */}
+          <section id="about" className="py-28 px-6 md:px-16 border-t border-white/10">
+            <SectionHeading eyebrow="Timeline">The track</SectionHeading>
+            <Timeline />
+          </section>
+
+          {/* EDUCATION */}
+          <section className="py-24 px-6 md:px-16 border-t border-white/10">
+            <SectionHeading eyebrow="Education">Where I study</SectionHeading>
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 max-w-4xl">
+              <div>
+                <h3 className="font-display font-bold text-2xl text-white">{education.school}</h3>
+                <p className="text-[#888] font-body mt-1">{education.degree}</p>
+                <p className="text-[#555] font-mono text-sm mt-2">
+                  {education.location} · {education.start}–{education.expected} (expected)
+                </p>
+                <p className="text-[#777] font-body text-sm mt-4 max-w-md">{education.note}</p>
+              </div>
+              <div className="md:text-right">
+                <p className="font-mono text-[11px] uppercase tracking-wider text-[#666] mb-3">
+                  Relevant coursework
+                </p>
+                <div className="flex flex-wrap md:justify-end gap-2 max-w-sm">
+                  {education.coursework.map((c) => (
+                    <span key={c} className="font-mono text-[11px] px-2 py-1 border border-white/10 text-[#888]">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* STACK */}
+          <section className="py-24 px-6 md:px-16 border-t border-white/10">
+            <SectionHeading eyebrow="Stack">What I build with</SectionHeading>
+            <SkillCloud />
+          </section>
+
+          {/* EXPERIENCE */}
+          <section className="py-24 px-6 md:px-16 border-t border-white/10">
+            <SectionHeading eyebrow="Experience">Where I&apos;ve been</SectionHeading>
+            <ExperienceAccordion />
+          </section>
+
+          {/* LEADERSHIP */}
+          <section className="py-24 px-6 md:px-16 border-t border-white/10">
+            <SectionHeading eyebrow="Beyond the screen">What else I run</SectionHeading>
+            <LeadershipGrid />
+          </section>
+
+          {/* RECOGNITION */}
+          <section className="py-24 px-6 md:px-16 border-t border-white/10">
+            <SectionHeading eyebrow="Recognition">On the record</SectionHeading>
+            <div className="border-t border-white/10">
+              {awards.map((award, i) => (
+                <motion.div
+                  key={i}
+                  className="border-b border-white/10 py-5 flex items-baseline justify-between gap-8"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05, duration: 0.3 }}
+                >
+                  <span className="font-body text-white">{award.title}</span>
+                  <span className="text-[#555] font-mono text-sm shrink-0 text-right">{award.detail}</span>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* CONTACT */}
+          <div id="contact">
+            <ContactSection />
+          </div>
+        </div>
+      </main>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Page shell — manages loader gate; HomeContent only mounts after loader done
+// ─────────────────────────────────────────────────────────────────────────────
 export default function Home() {
   const [loaded, setLoaded] = useState(false);
+  const progressRef = useRef<number>(0) as React.MutableRefObject<number>;
 
   return (
     <>
       <AnimatePresence>{!loaded && <Loader onComplete={() => setLoaded(true)} />}</AnimatePresence>
-
-      <AnimatePresence>
-        {loaded && (
-          <motion.main initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-            {/* ───────── HERO ───────── */}
-            <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-              <Suspense fallback={null}>
-                <HeroCanvas />
-              </Suspense>
-
-              <div className="relative z-10 px-6 md:px-16 pt-24">
-                <motion.p
-                  className="text-signal text-xs tracking-[0.3em] uppercase font-mono mb-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                >
-                  Builder · Researcher · Ashoka University
-                </motion.p>
-
-                <ScrambleText
-                  as="h1"
-                  trigger="mount"
-                  speed={36}
-                  text="Chaitanya Tripathi."
-                  className="font-display font-bold text-[clamp(44px,8vw,96px)] text-white leading-[0.95] mb-6 block max-w-4xl"
-                />
-
-                <motion.p
-                  className="text-[#999] font-body text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7, duration: 0.6 }}
-                >
-                  I build production-scale systems — college-admissions intelligence, food-safety
-                  pipelines, restaurant analytics — and study the physics underneath them, like where
-                  a hologram stops looking real.
-                </motion.p>
-
-                <motion.div
-                  className="flex flex-wrap items-center gap-4"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.85, duration: 0.5 }}
-                >
-                  <Magnetic>
-                    <a
-                      href="#work"
-                      className="inline-block border border-signal text-signal px-6 py-2.5 font-body text-sm hover:bg-signal hover:text-black transition-colors"
-                    >
-                      View work ↓
-                    </a>
-                  </Magnetic>
-                  <Magnetic>
-                    <a
-                      href="#research"
-                      className="inline-block border border-white/20 text-white px-6 py-2.5 font-body text-sm hover:border-white transition-colors"
-                    >
-                      Read the research →
-                    </a>
-                  </Magnetic>
-                </motion.div>
-              </div>
-
-              <motion.div
-                className="absolute bottom-8 left-6 md:left-16"
-                animate={{ y: [0, 8, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-              >
-                <div className="w-px h-12 bg-signal/50" />
-              </motion.div>
-            </section>
-
-            <NowBar />
-
-            {/* ───────── NOW ───────── */}
-            <section id="now" className="py-24 px-6 md:px-16 border-t border-white/10">
-              <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
-                <SectionHeading eyebrow="Now">What I&apos;m on this month</SectionHeading>
-                <span className="font-mono text-xs text-[#555] mb-12">Updated {nowLastUpdated}</span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
-                {now.map((item) => (
-                  <motion.div
-                    key={item.heading}
-                    className="border-l-2 border-signal/30 pl-6"
-                    initial={{ opacity: 0, x: -15 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, amount: 0.4 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <h3 className="font-display font-bold text-lg text-signal mb-2">{item.heading}</h3>
-                    <p className="text-[#999] font-body leading-relaxed">{item.content}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </section>
-
-            {/* ───────── SELECTED WORK ───────── */}
-            <section id="work" className="py-24 px-6 md:px-16 border-t border-white/10">
-              <SectionHeading eyebrow="Selected work">Things I&apos;ve built</SectionHeading>
-              <p className="text-[#888] font-body -mt-6 mb-12">
-                Currently shipping. Click any card to open the technical breakdown.
-              </p>
-
-              <div className="grid grid-cols-1 gap-5">
-                {currentProjects.map((project, i) => (
-                  <ProjectCard key={project.id} project={project} index={i} />
-                ))}
-              </div>
-
-              {/* Earlier work — condensed */}
-              <div className="mt-20">
-                <p className="font-mono text-[11px] uppercase tracking-wider text-[#666] mb-6">
-                  Earlier — the track record
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {earlierProjects.map((p, i) => (
-                    <motion.div
-                      key={p.id}
-                      className="border border-white/10 p-6 hover:bg-white/[0.02] transition-colors group"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, amount: 0.3 }}
-                      transition={{ delay: i * 0.08, duration: 0.4 }}
-                    >
-                      <div className="flex items-baseline justify-between mb-3">
-                        <h4 className="font-display font-bold text-xl text-white group-hover:text-signal transition-colors">
-                          {p.title}
-                        </h4>
-                        <span className="font-mono text-xs text-[#555]">{p.year}</span>
-                      </div>
-                      <p className="text-[#888] font-body text-sm leading-relaxed mb-4">{p.tagline}</p>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1">
-                        {p.metrics.slice(0, 2).map((m) => (
-                          <span key={m.label} className="font-mono text-[11px] text-[#777]">
-                            <span style={{ color: p.accent }}>{m.value}</span> · {m.label}
-                          </span>
-                        ))}
-                      </div>
-                      {p.hasCaseStudy && (
-                        <Link
-                          href={`/projects/${p.slug}`}
-                          className="inline-block mt-4 font-mono text-xs text-signal hover:text-white transition-colors"
-                        >
-                          case study →
-                        </Link>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-                <Link
-                  href="/projects"
-                  className="inline-block mt-8 font-body text-sm text-[#888] hover:text-signal transition-colors"
-                >
-                  All projects, full record →
-                </Link>
-              </div>
-            </section>
-
-            {/* ───────── RESEARCH ───────── */}
-            <ResearchSection />
-
-            {/* ───────── ABOUT ───────── */}
-            <section id="about" className="py-28 px-6 md:px-16 border-t border-white/10">
-              <SectionHeading eyebrow="Who I am">The signal</SectionHeading>
-              <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-16">
-                <div className="space-y-6 max-w-2xl">
-                  <p className="text-white/85 font-body text-lg leading-relaxed">
-                    Here&apos;s the throughline, if you want one: I keep building systems that make
-                    something messy legible. CollegeApp started it — I was sixteen, six thousand people
-                    showed up, and I learned a problem is only real if strangers care. CollegeOS is the
-                    serious version. Meza does it for restaurants; FoodSafe does it for the food itself,
-                    pulling toxins out of government PDFs nobody reads.
-                  </p>
-                  <p className="text-white/85 font-body text-lg leading-relaxed">
-                    But I don&apos;t think of myself as only a builder. I&apos;ve spent time recording
-                    the soundscape around Jama Masjid — the azaan, the pigeons, a thousand overlapping
-                    conversations — trying to compose <em>with</em> a place instead of about it. I design
-                    murder-mystery games for my friends, which is really just systems design with
-                    suspects. And lately I&apos;m obsessed with holographic displays — not as a product,
-                    just because the question of when a fake image starts fooling a real eye is genuinely
-                    beautiful to me.
-                  </p>
-                  <p className="text-white/85 font-body text-lg leading-relaxed">
-                    I&apos;m nineteen. The actual skill is finding signal in noise — whether the noise is
-                    admissions data, a POS export, or a 532-nanometre wavefront. If you&apos;re building
-                    something that needs that, let&apos;s talk.
-                  </p>
-                </div>
-                <Timeline />
-              </div>
-            </section>
-
-            {/* ───────── EDUCATION ───────── */}
-            <section className="py-24 px-6 md:px-16 border-t border-white/10">
-              <SectionHeading eyebrow="Education">Where I study</SectionHeading>
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 max-w-4xl">
-                <div>
-                  <h3 className="font-display font-bold text-2xl text-white">{education.school}</h3>
-                  <p className="text-[#888] font-body mt-1">{education.degree}</p>
-                  <p className="text-[#555] font-mono text-sm mt-2">
-                    {education.location} · {education.start}–{education.expected} (expected)
-                  </p>
-                  <p className="text-[#777] font-body text-sm mt-4 max-w-md">{education.note}</p>
-                </div>
-                <div className="md:text-right">
-                  <p className="font-mono text-[11px] uppercase tracking-wider text-[#666] mb-3">
-                    Relevant coursework
-                  </p>
-                  <div className="flex flex-wrap md:justify-end gap-2 max-w-sm">
-                    {education.coursework.map((c) => (
-                      <span
-                        key={c}
-                        className="font-mono text-[11px] px-2 py-1 border border-white/10 text-[#888]"
-                      >
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* ───────── STACK ───────── */}
-            <section className="py-24 px-6 md:px-16 border-t border-white/10">
-              <SectionHeading eyebrow="Stack">What I build with</SectionHeading>
-              <SkillCloud />
-            </section>
-
-            {/* ───────── EXPERIENCE ───────── */}
-            <section className="py-24 px-6 md:px-16 border-t border-white/10">
-              <SectionHeading eyebrow="Experience">Where I&apos;ve been</SectionHeading>
-              <ExperienceAccordion />
-            </section>
-
-            {/* ───────── LEADERSHIP ───────── */}
-            <section className="py-24 px-6 md:px-16 border-t border-white/10">
-              <SectionHeading eyebrow="Beyond the screen">What else I run</SectionHeading>
-              <LeadershipGrid />
-            </section>
-
-            {/* ───────── RECOGNITION ───────── */}
-            <section className="py-24 px-6 md:px-16 border-t border-white/10">
-              <SectionHeading eyebrow="Recognition">On the record</SectionHeading>
-              <div className="border-t border-white/10">
-                {awards.map((award, i) => (
-                  <motion.div
-                    key={i}
-                    className="border-b border-white/10 py-5 flex items-baseline justify-between gap-8"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05, duration: 0.3 }}
-                  >
-                    <span className="font-body text-white">{award.title}</span>
-                    <span className="text-[#555] font-mono text-sm shrink-0 text-right">{award.detail}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </section>
-
-            {/* ───────── CONTACT ───────── */}
-            <div id="contact">
-              <ContactSection />
-            </div>
-          </motion.main>
-        )}
-      </AnimatePresence>
+      {loaded && <HomeContent progressRef={progressRef} />}
     </>
   );
 }

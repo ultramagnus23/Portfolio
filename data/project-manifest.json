@@ -1,0 +1,276 @@
+{
+  "_meta": {
+    "generated": "2026-06-30",
+    "purpose": "Phase 0 content audit — drives which projects get case-study pages, card slots, or no presence in Phase 3.",
+    "tiers": {
+      "3": "Flagship case study — full page under /projects/[slug]",
+      "2": "Secondary — upgraded ProjectCard in the grid, no full page",
+      "1": "Now-log mention or footnote only",
+      "0": "Don't show"
+    }
+  },
+  "projects": [
+    {
+      "id": "collegeos",
+      "name": "CollegeOS",
+      "repo": "ultramagnus23/CollegeOS",
+      "github": "https://github.com/ultramagnus23/CollegeOS",
+      "live": null,
+      "description": "Global college discovery and application-intelligence platform. pgvector recommendation pipeline, Node.js chancing service, Python scraper infrastructure on PostgreSQL/Supabase.",
+      "stack": ["TypeScript", "React", "Node.js", "Express", "PostgreSQL", "Supabase", "Python", "GitHub Actions"],
+      "status": "in-progress",
+      "updated": "2026-06-30",
+      "tier": 3,
+      "tier_reason": "Flagship — production-scale canonical schema (8,200+ institutions), real predecessor proof (6k+ users with CollegeApp), strongest narrative arc: proof-of-problem → second swing. Differentiating content.",
+      "existing_case_study": true,
+      "portfolio_accuracy_gaps": [
+        "CRITICAL: Portfolio copy claims 'pgvector semantic retrieval' — README explicitly states pgvector is NOT installed; search is keyword + trigram + acronym matching today. Must correct before Phase 3.",
+        "CRITICAL: Portfolio says 'resilient Python scrapers keep deadlines fresh' — README says GitHub Actions refresh is gated (action_required at org level) and does not run automatically. Scrapers exist but aren't running.",
+        "Chancing model is trained on SIMULATED data (no real admit/reject outcomes yet) — portfolio copy implies calibrated real-data model. Must use honest framing: 'calibrated on stats-derived simulation; switches to real labels once 200 real outcomes are logged.'",
+        "Admissions stats coverage is partial (~1,600 of 8,200 colleges have acceptance rate data). Not mentioned in portfolio."
+      ],
+      "real_metrics": [
+        "8,200+ institutions across 8+ countries",
+        "Predecessor (CollegeApp) reached 6,000+ users organically",
+        "Canonical schema: 11 normalised tables under canonical.*",
+        "Recommendation pipeline: 4 stages (retrieval → ranking → diversification → explainability)"
+      ],
+      "honest_status": "Architecture stable, pre-launch. pgvector and real chancing labels are the two open gaps between current state and the full vision."
+    },
+    {
+      "id": "foodsafe-india",
+      "name": "FoodSafe India",
+      "repo": "ultramagnus23/FoodSafe",
+      "github": "https://github.com/ultramagnus23/FoodSafe",
+      "live": null,
+      "description": "4-stage data pipeline (PDF OCR → NER → canonicalisation → dedup + confidence scoring) turning FSSAI/USFDA/AGMARKNET enforcement PDFs into a structured PostgreSQL database. FastAPI layer with 8 routers. Random Forest district-risk model, Bayesian supply-chain propagation graph, Benford's Law fraud detection.",
+      "stack": ["Python", "PostgreSQL", "Airflow", "Tesseract OCR", "spaCy", "FastAPI", "asyncpg", "scikit-learn"],
+      "status": "in-progress",
+      "updated": "2026-06-30",
+      "tier": 3,
+      "tier_reason": "Strongest completely missing technical story on the current site. Three ML layers (Random Forest, Bayesian graph, Benford's fraud detection) on a real public-data problem. Airflow orchestration. FastAPI already live with 8 routers. The kind of data-engineering depth that a technical reviewer notices.",
+      "existing_case_study": false,
+      "portfolio_accuracy_gaps": [
+        "Portfolio projects.ts says 'FastAPI query layer... next' but the API is already built with 8 routers (auth, risk, user, search, fmcg, insurance, disputes, admin). Portfolio is underselling completed work.",
+        "Random Forest district risk model, Bayesian supply-chain propagation graph, and Benford's Law fraud detection are all built — none appear in current portfolio copy.",
+        "React SPA (CDN-based, no build step) is already built — not mentioned in portfolio."
+      ],
+      "real_metrics": [
+        "4 pipeline stages: extract → standardise → dedup → confidence score",
+        "Trust gate: ≥ 0.75 confidence score",
+        "3 sources: FSSAI (weekly), USFDA (daily), AGMARKNET (daily)",
+        "8 API routers: auth, risk, user, search, fmcg, insurance, disputes, admin",
+        "3 ML models: Random Forest (district risk), Bayesian propagation graph (supply chain), Benford's Law (fraud)"
+      ],
+      "honest_status": "Pipeline, API, and ML models built. Frontend is a single-file React SPA (CDN). Production hardening items: RLS context not yet set for app.user_id in API, needs a PostgreSQL production host."
+    },
+    {
+      "id": "holoforge",
+      "name": "HoloForge",
+      "repo": "ultramagnus23/HoloForge",
+      "github": "https://github.com/ultramagnus23/HoloForge",
+      "live": null,
+      "description": "Computational holography simulation framework. Angular-Spectrum propagation + Gerchberg-Saxton phase retrieval. Systematic degradation sweeps across 6 axes scored with physical (PSNR/SSIM) and perceptual-proxy (LPIPS-style) metrics. Working paper targeting arXiv cs.GR/eess.IV.",
+      "stack": ["Python", "NumPy", "SciPy", "scikit-image", "Matplotlib", "OpenCV", "Jupyter"],
+      "status": "in-progress",
+      "updated": "2026-06-30",
+      "tier": 3,
+      "tier_reason": "Research differentiator — almost no other undergrad portfolio can show computational holography with real quantitative findings and an in-progress preprint. The InterferenceField canvas on the existing site is literally a nod to this work; the case study closes the loop. Chapter 4 of the scroll sequence is built for this.",
+      "existing_case_study": true,
+      "portfolio_accuracy_gaps": [
+        "Portfolio and research.ts accurately reflect the project state — no material gaps found.",
+        "Gradient-descent PyTorch retrieval is correctly marked as 'planned'. Head-tracked prototype and perceptual pilot study not yet in portfolio copy (minor — they're still future work per README)."
+      ],
+      "real_metrics": [
+        "2-bit phase quantization: SSIM 0.93 (holds up far better than expected)",
+        "1-bit phase quantization: SSIM 0.003 (catastrophic cliff)",
+        "25% viewing angle bandwidth: SSIM 0.97 (near-lossless)",
+        "Speckle σ=0.2: SSIM 0.998 (perceptually negligible)",
+        "64×64 resolution: SSIM 0.019 (degrades fast)",
+        "1 depth plane: SSIM 0.009 (multi-plane depth matters most)",
+        "6 degradation axes swept"
+      ],
+      "honest_status": "Framework and degradation experiments complete. Preprint in progress — not submitted, no arXiv link yet. Gradient-descent PyTorch retrieval is the next experiment. Be explicit: 'in progress, targeting arXiv.'"
+    },
+    {
+      "id": "meza",
+      "name": "Meza",
+      "repo": "ultramagnus23/Meza",
+      "github": "https://github.com/ultramagnus23/Meza",
+      "live": null,
+      "description": "Restaurant intelligence platform. POS transaction data → profit-ranked operational decisions: menu engineering, RevPASH, price elasticity, channel analytics, theft detection. Next.js + Express + Python ML.",
+      "stack": ["Next.js", "TypeScript", "Express", "Prisma", "SQLite→PostgreSQL", "Python", "FastAPI", "Recharts"],
+      "status": "in-progress",
+      "updated": "2026-06-30",
+      "tier": 3,
+      "tier_reason": "CT confirmed: Meza is the canonical repo (not RestaurantApp) and gets a full case study. In active talks with a pilot restaurant but no live data yet — case study must be honest about this. 10+ analytics modules, ARIMA forecasting, and Benford's void detection are the technical hooks.",
+      "existing_case_study": false,
+      "portfolio_accuracy_gaps": [
+        "projects.ts github link points to RestaurantApp — must be updated to https://github.com/ultramagnus23/Meza.",
+        "projects.ts marks hasCaseStudy: false — update to true when Phase 3 builds the case study page.",
+        "No pilot restaurant with real data yet — case study honest_status line must say 'in talks with first pilot restaurant; all results currently from uploaded CSV demo data.'"
+      ],
+      "real_metrics": [
+        "10+ analytics modules",
+        "INR base + 7 currency conversions",
+        "Analytics: RevPASH, LTV:CAC, Swiggy/Zomato reconciliation, ARIMA supply forecast, Benford's void detection",
+        "Status: core analytics running against uploaded POS data; pilot restaurant in talks"
+      ],
+      "honest_status": "Core analytics built, running against uploaded CSV data. Pilot restaurant in talks — no live POS integration yet. Case study should say so explicitly."
+    },
+    {
+      "id": "orenth",
+      "name": "Orenth",
+      "repo": null,
+      "github": null,
+      "live": null,
+      "description": "Real-time intra-campus navigation. WiFi triangulation + carrier geolocation base layer corrected by facial-recognition camera checkpoints. 'Navigate to a person, not a room.' TiE Global Top 25, India Mobile Congress 2023.",
+      "stack": ["Python", "JavaScript", "Computer Vision", "WiFi Signal Processing"],
+      "status": "done",
+      "updated": "2023",
+      "tier": 2,
+      "tier_reason": "Strong competition credentials (TiE Global Top 25 worldwide, IMC 2023 alongside Airtel/Jio) and a distinctive UX metaphor. No code repo means it's a narrative-and-credentials card, not a technical deep-dive. Existing case study page but no GitHub link.",
+      "existing_case_study": true,
+      "portfolio_accuracy_gaps": [],
+      "real_metrics": [
+        "TiE Global: Top 25 worldwide, Best Business Model",
+        "IMC 2023: 1 of 5 schools nationally",
+        "Wharton TYE: 15% ROI challenge participant"
+      ],
+      "honest_status": "Done, shipped as a pitch/competition project. No public repo."
+    },
+    {
+      "id": "collegapp",
+      "name": "CollegeApp",
+      "repo": null,
+      "github": null,
+      "live": null,
+      "description": "AI chatbot helping students research and apply to colleges. Built in Grade 11. 6,000+ users organically. The proof-of-problem that led to CollegeOS.",
+      "stack": ["JavaScript", "NLP", "API Integration"],
+      "status": "done",
+      "updated": "2022",
+      "tier": 1,
+      "tier_reason": "The 6,000 users is the key fact and it's already surfaced in the CollegeOS case study as the predecessor proof. Doesn't need its own card — it's the 'origin story' footnote in CollegeOS.",
+      "existing_case_study": false,
+      "portfolio_accuracy_gaps": [],
+      "real_metrics": ["6,000+ users", "₹0 marketing spend"],
+      "honest_status": "Done. No public repo."
+    },
+    {
+      "id": "klein-b",
+      "name": "Klein B",
+      "repo": null,
+      "github": null,
+      "live": null,
+      "description": "Independent research on using Azolla ferns and Daphnia water fleas to address lake eutrophication. 60-day chemical-free biological protocol with deployment boat design and financial model.",
+      "stack": ["Research", "Biotechnology", "Environmental Science", "Financial Modelling"],
+      "status": "done",
+      "updated": "2022",
+      "tier": 2,
+      "tier_reason": "Distinctive non-CS independent research that shows breadth. No repo but a complete protocol + financial model. Keeps the site from reading as a purely software portfolio. Existing case study page.",
+      "existing_case_study": true,
+      "portfolio_accuracy_gaps": [],
+      "real_metrics": ["60-day protocol", "Zero chemicals", "Carbon-neutral deployment boat design"],
+      "honest_status": "Done. Research complete, no active organisation."
+    },
+    {
+      "id": "novamart-dashboard",
+      "name": "NOVAmart Dashboard",
+      "repo": "ultramagnus23/NOVAmart_dashboard",
+      "github": "https://github.com/ultramagnus23/NOVAmart_dashboard",
+      "live": null,
+      "description": "FastAPI server that executes a Jupyter notebook (papermill) and scrapes its outputs into a live executive dashboard. Single-HTML frontend.",
+      "stack": ["Python", "FastAPI", "papermill", "Jupyter"],
+      "status": "done",
+      "updated": "2026-05-01",
+      "tier": 2,
+      "tier_reason": "CT confirmed: show as a card, not a case study. Shows papermill orchestration and FastAPI — a distinct technical pattern worth surfacing in the grid.",
+      "existing_case_study": false,
+      "portfolio_accuracy_gaps": [],
+      "real_metrics": [],
+      "honest_status": "Built and functional for its purpose."
+    },
+    {
+      "id": "wavesim-optics",
+      "name": "WaveSim-optics",
+      "repo": "ultramagnus23/WaveSim-optics",
+      "github": "https://github.com/ultramagnus23/WaveSim-optics",
+      "live": null,
+      "description": "Wave-optics and digital-holography simulator. Double-slit experiment through Gerchberg-Saxton phase retrieval. The foundational predecessor to HoloForge.",
+      "stack": ["Python", "NumPy"],
+      "status": "archived",
+      "updated": "2026-06-30",
+      "tier": 2,
+      "tier_reason": "CT confirmed: show as a card, not a case study. Frame as the foundation/precursor to HoloForge — 'where the wave-optics work started.' The archived status and the HoloForge progression is itself a story worth showing.",
+      "existing_case_study": false,
+      "portfolio_accuracy_gaps": [],
+      "real_metrics": [],
+      "honest_status": "Archived — explicitly superseded by HoloForge. Card copy should acknowledge this: 'the origin experiment; HoloForge is the active work.'"
+    },
+    {
+      "id": "coupleup",
+      "name": "CoupleUP",
+      "repo": "ultramagnus23/CoupleUP",
+      "github": "https://github.com/ultramagnus23/CoupleUP",
+      "live": null,
+      "description": "Social matching platform — users sign up, get matched into couples by preferences, community votes, leaderboard.",
+      "stack": [],
+      "status": "unknown",
+      "updated": "2026-06-21",
+      "tier": 0,
+      "tier_reason": "No README beyond a one-line description, no language detected. Don't show.",
+      "existing_case_study": false,
+      "portfolio_accuracy_gaps": [],
+      "real_metrics": [],
+      "honest_status": "Unknown — no code visible in the README."
+    },
+    {
+      "id": "faceclash",
+      "name": "faceclash",
+      "repo": "ultramagnus23/faceclash",
+      "github": "https://github.com/ultramagnus23/faceclash",
+      "live": null,
+      "description": "Remake of Zuckerberg's Facemash from 2003.",
+      "stack": ["JavaScript"],
+      "status": "done",
+      "updated": "2024-06-05",
+      "tier": 0,
+      "tier_reason": "Fun hack, not portfolio-grade for technical recruiting. Don't show.",
+      "existing_case_study": false,
+      "portfolio_accuracy_gaps": [],
+      "real_metrics": [],
+      "honest_status": "Done."
+    }
+  ],
+  "phase_3_case_study_count": 4,
+  "phase_3_case_study_slugs": ["collegeos", "foodsafe-india", "holoforge", "meza"],
+  "phase_3_card_only": ["orenth", "klein-b", "wavesim-optics", "novamart-dashboard"],
+  "phase_3_log_only": ["collegapp"],
+  "phase_3_dont_show": ["coupleup", "faceclash"],
+  "phase_1_decisions": {
+    "sound_design": true,
+    "sound_notes": "Ambient audio confirmed. Muted by default, explicit toggle in UI. Never autoplay."
+  },
+  "clarifications_resolved": [
+    {
+      "item": "wave of text code",
+      "answer": "Refers to WaveSim-optics. Show as a card (Tier 2), not a case study."
+    },
+    {
+      "item": "lower our dashboard",
+      "answer": "Refers to NOVAmart dashboard. Show as a card (Tier 2), not a case study."
+    },
+    {
+      "item": "Meza canonical repo",
+      "answer": "ultramagnus23/Meza is canonical. Update github link in projects.ts from RestaurantApp to Meza."
+    },
+    {
+      "item": "Meza tier",
+      "answer": "Tier 3 — full case study. In talks with pilot restaurant but no live data yet. Case study must be honest about this."
+    },
+    {
+      "item": "Sound design",
+      "answer": "Add ambient audio. Muted by default with visible toggle."
+    }
+  ]
+}

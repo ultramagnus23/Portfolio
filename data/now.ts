@@ -12,7 +12,7 @@ export const now: NowItem[] = [
   {
     heading: "Building",
     content:
-      "CollegeOS toward launch — canonical schema stable, pgvector recommendations and the chancing service wired up. Meza's analytics engines running against real POS data.",
+      "CollegeOS toward launch — canonical schema stable, keyword + trigram recommendation pipeline and chancing service wired. Meza analytics engines running against uploaded demo data.",
   },
   {
     heading: "Researching",
