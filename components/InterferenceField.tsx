@@ -2,30 +2,23 @@
 
 import { useEffect, useRef } from "react";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { AudioController } from "@/lib/audio";
 
 interface InterferenceFieldProps {
+  progressRef: React.MutableRefObject<number>;
   className?: string;
-  /** dot colour as [r,g,b] */
-  color?: [number, number, number];
-  /** lattice spacing in px (larger = sparser = cheaper) */
-  spacing?: number;
-  /** follow the cursor as an extra wave source */
-  interactive?: boolean;
-  opacity?: number;
 }
 
-/**
- * A lattice of dots whose brightness follows the superposition of a few moving
- * wave sources — a literal interference pattern, the physics behind HoloForge.
- * Cheap (coarse lattice, viewport + visibility gated) and reduced-motion safe.
- */
-export default function InterferenceField({
-  className = "",
-  color = [0, 255, 148],
-  spacing = 26,
-  interactive = true,
-  opacity = 1,
-}: InterferenceFieldProps) {
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
+function ss(edge0: number, edge1: number, x: number): number {
+  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+
+export default function InterferenceField({ progressRef, className = "" }: InterferenceFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduced = usePrefersReducedMotion();
 
@@ -35,91 +28,113 @@ export default function InterferenceField({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const [r, g, b] = color;
-    let raf = 0;
-    let width = 0;
-    let height = 0;
-    let cols = 0;
-    let rows = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let width = 0, height = 0;
     let visible = true;
-    const mouse = { x: -9999, y: -9999, active: false };
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-    const gap = isMobile ? spacing * 1.4 : spacing;
+    const mouse = { x: -9999, y: -9999 };
+    let raf = 0;
 
     const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      width = rect.width;
-      height = rect.height;
+      width = window.innerWidth;
+      height = window.innerHeight;
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      cols = Math.ceil(width / gap) + 1;
-      rows = Math.ceil(height / gap) + 1;
     };
 
-    // Slow-drifting wave sources (in px space)
-    const sources = [
-      { x: width * 0.25, y: height * 0.35, k: 0.045, sx: 0.18, sy: 0.12 },
-      { x: width * 0.7, y: height * 0.6, k: 0.038, sx: -0.13, sy: 0.16 },
-    ];
+    const noise = (x: number, y: number, t: number): number => {
+      const n1 = Math.sin(x * 0.005 + t * 0.3) * Math.cos(y * 0.008);
+      const n2 = Math.sin((x + y) * 0.003 + t * 0.2) * Math.cos(x * 0.007 - y * 0.005);
+      const n3 = Math.sin(x * 0.002 - y * 0.004 + t * 0.25);
+      return (n1 + n2 + n3) / 3;
+    };
 
     const render = (t: number) => {
-      ctx.clearRect(0, 0, width, height);
-      const time = reduced ? 0 : t * 0.001;
+      ctx.fillStyle = "#090b0a";
+      ctx.fillRect(0, 0, width, height);
 
-      const s0x = width * (0.25 + 0.12 * Math.sin(time * 0.3));
-      const s0y = height * (0.4 + 0.12 * Math.cos(time * 0.23));
-      const s1x = width * (0.72 + 0.12 * Math.cos(time * 0.27));
-      const s1y = height * (0.55 + 0.12 * Math.sin(time * 0.31));
-      sources[0].x = s0x;
-      sources[0].y = s0y;
-      sources[1].x = s1x;
-      sources[1].y = s1y;
+      const time = reduced ? 0 : t * 0.0005;
+      const p = progressRef.current;
 
-      for (let cx = 0; cx < cols; cx++) {
-        for (let cy = 0; cy < rows; cy++) {
-          const px = cx * gap;
-          const py = cy * gap;
-          let sum = 0;
-          for (const s of sources) {
-            const d = Math.hypot(px - s.x, py - s.y);
-            sum += Math.cos(d * s.k - time * 2.2);
-          }
-          if (interactive && mouse.active) {
-            const dm = Math.hypot(px - mouse.x, py - mouse.y);
-            if (dm < 260) sum += Math.cos(dm * 0.06 - time * 3) * (1 - dm / 260) * 2.4;
-          }
-          // normalise sum (~ -2..2 + mouse) to 0..1
-          const v = Math.max(0, Math.min(1, (sum + 2) / 4));
-          if (v < 0.12) continue;
-          const a = v * v * 0.9 * opacity;
-          const radius = 0.5 + v * 1.6;
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-          ctx.arc(px, py, radius, 0, Math.PI * 2);
-          ctx.fill();
+      const SIGNAL: [number, number, number] = [0, 255, 148];
+      const PHASE: [number, number, number] = [94, 140, 219];
+      const colorT = ss(0.67, 0.80, p);
+      const cr = Math.round(lerp(SIGNAL[0], PHASE[0], colorT));
+      const cg = Math.round(lerp(SIGNAL[1], PHASE[1], colorT));
+      const cb = Math.round(lerp(SIGNAL[2], PHASE[2], colorT));
+
+      let opacity = ss(0, 0.07, p);
+      if (p > 0.38 && p < 0.65) opacity *= lerp(1, 0.12, ss(0.38, 0.52, p));
+      if (p > 0.65 && p < 0.85) opacity *= lerp(0.12, 0.65, ss(0.65, 0.76, p));
+      if (p > 0.92) opacity *= lerp(0.65, 0.02, ss(0.92, 1.0, p));
+
+      const step = 30;
+      const rows = Math.ceil(height / step) + 1;
+      const cols = Math.ceil(width / step) + 1;
+
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      ctx.strokeStyle = `rgba(${cr},${cg},${cb},${0.2 * opacity})`;
+      ctx.lineWidth = 0.5;
+
+      for (let row = 0; row < rows; row++) {
+        const y = row * step;
+        ctx.beginPath();
+        for (let col = 0; col < cols; col++) {
+          const x = col * step;
+          const n = noise(x, y, time);
+          const offset = n * 12;
+          const yOffset = y + offset;
+          if (col === 0) ctx.moveTo(x, yOffset);
+          else ctx.lineTo(x, yOffset);
         }
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = `rgba(${cr},${cg},${cb},${0.15 * opacity})`;
+      ctx.lineWidth = 0.4;
+
+      for (let col = 0; col < cols; col++) {
+        const x = col * step;
+        ctx.beginPath();
+        for (let row = 0; row < rows; row++) {
+          const y = row * step;
+          const n = noise(x, y, time);
+          const offset = n * 12;
+          const yOffset = y + offset;
+          if (row === 0) ctx.moveTo(x, yOffset);
+          else ctx.lineTo(x, yOffset);
+        }
+        ctx.stroke();
+      }
+
+      const dm = Math.hypot(width / 2 - mouse.x, height / 2 - mouse.y);
+      if (dm < 300) {
+        const influence = (1 - dm / 300) * 0.3;
+        ctx.strokeStyle = `rgba(${cr},${cg},${cb},${influence * opacity * 0.2})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 50 + Math.sin(time * 2) * 15, 0, Math.PI * 2);
+        ctx.stroke();
       }
 
       if (!reduced && visible) raf = requestAnimationFrame(render);
     };
 
-    const onMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-      mouse.active = mouse.x >= 0 && mouse.y >= 0 && mouse.x <= width && mouse.y <= height;
+    const onMouseMove = (e: MouseEvent) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      AudioController.instance.touch();
     };
 
     resize();
     window.addEventListener("resize", resize);
-    if (interactive && !reduced) window.addEventListener("mousemove", onMove);
+    if (!reduced) window.addEventListener("mousemove", onMouseMove);
 
-    // Gate the animation to viewport visibility for performance.
     const io = new IntersectionObserver(
-      (entries) => {
-        visible = entries[0].isIntersecting;
+      ([entry]) => {
+        visible = entry.isIntersecting;
         if (visible && !reduced) {
           cancelAnimationFrame(raf);
           raf = requestAnimationFrame(render);
@@ -131,10 +146,7 @@ export default function InterferenceField({
     );
     io.observe(canvas);
 
-    if (reduced) {
-      // one static frame
-      render(0);
-    }
+    if (reduced) render(0);
 
     const onVisibility = () => {
       if (document.hidden) cancelAnimationFrame(raf);
@@ -145,11 +157,18 @@ export default function InterferenceField({
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
-      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("visibilitychange", onVisibility);
       io.disconnect();
     };
-  }, [color, spacing, interactive, opacity, reduced]);
+  }, [progressRef, reduced]);
 
-  return <canvas ref={canvasRef} className={className} aria-hidden="true" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className={`fixed inset-0 w-screen h-screen pointer-events-none ${className}`}
+      style={{ zIndex: 1 }}
+      aria-hidden="true"
+    />
+  );
 }

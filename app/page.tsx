@@ -14,7 +14,7 @@ import SkillCloud from "@/components/SkillCloud";
 import ExperienceAccordion from "@/components/ExperienceAccordion";
 import LeadershipGrid from "@/components/LeadershipGrid";
 import ContactSection from "@/components/ContactSection";
-import WavefrontCanvas from "@/components/WavefrontCanvas";
+import InterferenceField from "@/components/InterferenceField";
 import { currentProjects, earlierProjects } from "@/data/projects";
 import { now, nowLastUpdated } from "@/data/now";
 import { education } from "@/data/education";
@@ -109,49 +109,11 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
     if (v > 0.05) AudioController.instance.setChapter(5);
   });
 
-  // Ch2 text reveal — direct DOM refs updated by a scroll listener.
-  // useTransform → opacity has a known Framer Motion issue where the CSS
-  // opacity property gets initialised to 0 and never re-applied reactively;
-  // direct DOM writes avoid this entirely.
-  const ch2EyebrowRef = useRef<HTMLParagraphElement>(null);
-  const ch2L1Ref      = useRef<HTMLParagraphElement>(null);
-  const ch2L2Ref      = useRef<HTMLParagraphElement>(null);
-  const ch2L3Ref      = useRef<HTMLParagraphElement>(null);
-  const ch2CtaRef     = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ss = (e0: number, e1: number, x: number) => {
-      const t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0)));
-      return t * t * (3 - 2 * t);
-    };
-    const update = () => {
-      const container = ch2Ref.current;
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      const track = container.offsetHeight - window.innerHeight;
-      const p = Math.max(0, Math.min(1, -rect.top / track));
-
-      const applyEl = (el: HTMLElement | null, op: number, y?: number) => {
-        if (!el) return;
-        el.style.opacity = String(op);
-        if (y !== undefined) el.style.transform = `translateY(${y}px)`;
-      };
-
-      applyEl(ch2EyebrowRef.current, ss(0, 0.12, p));
-      applyEl(ch2L1Ref.current, ss(0.10, 0.28, p), 36 * (1 - ss(0.10, 0.28, p)));
-      applyEl(ch2L2Ref.current, ss(0.28, 0.48, p), 36 * (1 - ss(0.28, 0.48, p)));
-      applyEl(ch2L3Ref.current, ss(0.48, 0.68, p), 36 * (1 - ss(0.48, 0.68, p)));
-      applyEl(ch2CtaRef.current,  ss(0.72, 0.88, p));
-    };
-    window.addEventListener("scroll", update, { passive: true });
-    update();
-    return () => window.removeEventListener("scroll", update);
-  }, [ch2Ref]);
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      {/* Fixed wavefront canvas */}
-      <WavefrontCanvas progressRef={progressRef} />
+      {/* Fixed interference field backdrop */}
+      <InterferenceField progressRef={progressRef} />
 
       <main style={{ position: "relative", zIndex: 2 }}>
 
@@ -260,20 +222,18 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
             className="relative flex flex-col justify-center"
             style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}
           >
-            <div className="relative z-10 px-6 md:px-16 pt-20 space-y-8 max-w-2xl">
-              <p
-                ref={ch2EyebrowRef}
-                className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40"
-                style={{ opacity: 0 }}
-              >
+            <motion.div
+              className="relative z-10 px-6 md:px-16 pt-20 space-y-6 max-w-2xl"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.6 }}
+            >
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40">
                 02 — Reconstruction
               </p>
 
-              <p
-                ref={ch2L1Ref}
-                className="text-white/85 font-body leading-[1.8] text-lg md:text-xl"
-                style={{ opacity: 0, transform: "translateY(36px)" }}
-              >
+              <p className="text-white/80 font-body leading-[1.8] text-base md:text-lg">
                 Here&apos;s the throughline, if you want one: I keep building systems that make
                 something messy legible. CollegeApp started it — I was sixteen, six thousand people
                 showed up, and I learned a problem is only real if strangers care. CollegeOS is the
@@ -281,11 +241,7 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
                 pulling toxins out of government PDFs nobody reads.
               </p>
 
-              <p
-                ref={ch2L2Ref}
-                className="text-white/85 font-body leading-[1.8] text-lg md:text-xl"
-                style={{ opacity: 0, transform: "translateY(36px)" }}
-              >
+              <p className="text-white/80 font-body leading-[1.8] text-base md:text-lg">
                 But I don&apos;t think of myself as only a builder. I&apos;ve spent time recording
                 the soundscape around Jama Masjid — the azaan, the pigeons, a thousand overlapping
                 conversations — trying to compose <em>with</em> a place instead of about it. I design
@@ -295,17 +251,13 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
                 beautiful to me.
               </p>
 
-              <p
-                ref={ch2L3Ref}
-                className="text-white/85 font-body leading-[1.8] text-lg md:text-xl"
-                style={{ opacity: 0, transform: "translateY(36px)" }}
-              >
+              <p className="text-white/80 font-body leading-[1.8] text-base md:text-lg">
                 I&apos;m nineteen. The actual skill is finding signal in noise — whether the noise
                 is admissions data, a POS export, or a 532-nanometre wavefront. If you&apos;re
                 building something that needs that, let&apos;s talk.
               </p>
 
-              <div ref={ch2CtaRef} className="flex gap-6 pt-2" style={{ opacity: 0 }}>
+              <div className="flex gap-6 pt-2">
                 <a href="#work" className="font-mono text-sm text-signal hover:text-white transition-colors">
                   See the work ↓
                 </a>
@@ -313,7 +265,7 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
                   Get in touch →
                 </a>
               </div>
-            </div>
+            </motion.div>
           </section>
         </div>
 
