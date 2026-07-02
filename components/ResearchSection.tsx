@@ -1,10 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
 import { research } from "@/data/research";
-
-const InterferenceField = dynamic(() => import("@/components/InterferenceField"), { ssr: false });
 
 function barColor(v: number) {
   // green when perception survives, amber mid, red at the cliff
@@ -16,14 +13,7 @@ function barColor(v: number) {
 export default function ResearchSection() {
   return (
     <section id="research" className="relative py-28 px-6 md:px-16 border-t border-white/10 overflow-hidden">
-      {/* interference backdrop — 532nm green laser, the physics of the work itself */}
-      <InterferenceField
-        className="absolute inset-0 w-full h-full"
-        spacing={30}
-        opacity={0.5}
-        color={[0, 255, 148]}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0a0a0a]/60 to-[#0a0a0a] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0a0a0a]/80 to-[#0a0a0a] pointer-events-none" />
 
       <div className="relative z-10 max-w-5xl">
         <motion.div
