@@ -28,7 +28,7 @@ export default function Nav() {
       }`}
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 2.2, duration: 0.5 }}
+      transition={{ delay: 1.75, duration: 0.5 }}
     >
       <Link
         href="/"

@@ -13,11 +13,11 @@ export default function Loader({ onComplete }: LoaderProps) {
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase(1), 0);
-    const t2 = setTimeout(() => setPhase(2), 400);
-    const t3 = setTimeout(() => setPhase(3), 900);
-    const t4 = setTimeout(() => setProgress(100), 950);
-    const t5 = setTimeout(() => setPhase(4), 1800);
-    const t6 = setTimeout(() => onComplete(), 2200);
+    const t2 = setTimeout(() => setPhase(2), 300);
+    const t3 = setTimeout(() => setPhase(3), 650);
+    const t4 = setTimeout(() => setProgress(100), 700);
+    const t5 = setTimeout(() => setPhase(4), 1400);
+    const t6 = setTimeout(() => onComplete(), 1750);
 
     return () => {
       [t1, t2, t3, t4, t5, t6].forEach(clearTimeout);
