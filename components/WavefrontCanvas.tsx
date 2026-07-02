@@ -40,6 +40,8 @@ export default function WavefrontCanvas({ progressRef, className = "" }: Wavefro
     let width = 0, height = 0, cols = 0, rows = 0;
     let visible = true;
     const mouse = { x: -9999, y: -9999 };
+    // Click ripples — expanding wavefront pulses radiating from the pointer
+    const ripples: { x: number; y: number; t0: number }[] = [];
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -54,8 +56,14 @@ export default function WavefrontCanvas({ progressRef, className = "" }: Wavefro
 
     const render = (t: number) => {
       ctx.clearRect(0, 0, width, height);
+      ctx.globalCompositeOperation = "source-over";
       const time = reduced ? 0 : t * 0.001;
       const p = progressRef.current;
+
+      // Cull expired ripples (2.4s life)
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        if (time - ripples[i].t0 > 2.4) ripples.splice(i, 1);
+      }
 
       // ── Chapter state parameters ─────────────────────────────────────────
 
@@ -116,17 +124,32 @@ export default function WavefrontCanvas({ progressRef, className = "" }: Wavefro
           const dm = Math.hypot(px - mouse.x, py - mouse.y);
           if (dm < 260) sum += Math.cos(dm * 0.06 - time * 3) * (1 - dm / 260) * cursorStr;
 
+          // Click ripples — subtle expanding ring with quick decay
+          for (let ri = 0; ri < ripples.length; ri++) {
+            const age = time - ripples[ri].t0;
+            const rd = Math.hypot(px - ripples[ri].x, py - ripples[ri].y);
+            const front = age * 340;
+            const band = Math.abs(rd - front);
+            if (band < 130) {
+              sum +=
+                Math.cos(band * 0.055) *
+                Math.exp(-band * 0.016) *
+                Math.exp(-age * 1.8) *
+                1.2;
+            }
+          }
+
           // Normalize → dot brightness
           const totalW = w0 + w1 + w2 + 1;
           const v = Math.max(0, Math.min(1, (sum / totalW + 0.6) / 1.2));
           if (v < 0.1) continue;
 
-          const alpha = v * v * 0.85 * opacity;
+          const alpha = v * v * 0.72 * opacity;
           if (alpha < 0.008) continue;
 
           ctx.beginPath();
           ctx.fillStyle = `rgba(${cr},${cg},${cb},${alpha})`;
-          ctx.arc(px, py, 0.45 + v * 1.5, 0, Math.PI * 2);
+          ctx.arc(px, py, 0.45 + v * 1.4, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -140,9 +163,17 @@ export default function WavefrontCanvas({ progressRef, className = "" }: Wavefro
       AudioController.instance.touch();
     };
 
+    const onPointerDown = (e: PointerEvent) => {
+      if (ripples.length >= 5) ripples.shift();
+      ripples.push({ x: e.clientX, y: e.clientY, t0: performance.now() * 0.001 });
+    };
+
     resize();
     window.addEventListener("resize", resize);
-    if (!reduced) window.addEventListener("mousemove", onMouseMove);
+    if (!reduced) {
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("pointerdown", onPointerDown);
+    }
 
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -170,6 +201,7 @@ export default function WavefrontCanvas({ progressRef, className = "" }: Wavefro
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("visibilitychange", onVisibility);
       io.disconnect();
     };

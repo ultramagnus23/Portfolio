@@ -36,6 +36,31 @@ function SectionHeading({ children, eyebrow }: { children: string; eyebrow?: str
   );
 }
 
+function HeroTelemetry() {
+  const [time, setTime] = useState("");
+  useEffect(() => {
+    const tick = () =>
+      setTime(
+        new Date().toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          timeZone: "Asia/Kolkata",
+        })
+      );
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="hidden md:flex items-center gap-6 font-mono text-[10px] tracking-[0.2em] uppercase text-white/30">
+      <span>28.9931° N · 77.0151° E</span>
+      <span className="text-signal/50">IST {time}</span>
+      <span>λ 532 nm</span>
+    </div>
+  );
+}
+
 function ChapterLabel({ n, label }: { n: string; label: string }) {
   return (
     <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40 mb-6">
@@ -134,7 +159,7 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
             CHAPTER 1 — SIGNAL
             300vh wrapper; section is sticky so it holds while you scroll through
             ─────────────────────────────────────────────────────────────────── */}
-        <div ref={ch1Ref} style={{ height: "300vh" }}>
+        <div ref={ch1Ref} style={{ height: "300vh", position: "relative" }}>
           <section
             id="chapter-1"
             className="relative flex flex-col justify-center overflow-hidden"
@@ -152,13 +177,22 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
                 </p>
               </motion.div>
 
-              <ScrambleText
-                as="h1"
-                trigger="mount"
-                speed={36}
-                text="Chaitanya Tripathi."
-                className="font-display font-bold text-[clamp(44px,8vw,96px)] text-white leading-[0.95] mb-6 block max-w-4xl"
-              />
+              <h1 className="font-display font-bold text-[clamp(52px,10vw,132px)] leading-[0.92] tracking-[-0.02em] mb-6 max-w-5xl">
+                <ScrambleText
+                  as="span"
+                  trigger="mount"
+                  speed={36}
+                  text="Chaitanya"
+                  className="text-white block"
+                />
+                <ScrambleText
+                  as="span"
+                  trigger="mount"
+                  speed={30}
+                  text="Tripathi."
+                  className="text-outline block"
+                />
+              </h1>
 
               <motion.p
                 className="text-[#999] font-body text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
@@ -180,6 +214,7 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
                 <Magnetic>
                   <a
                     href="#work"
+                    data-cursor-text="go"
                     className="inline-block border border-signal text-signal px-6 py-2.5 font-body text-sm hover:bg-signal hover:text-black transition-colors"
                   >
                     View work ↓
@@ -188,6 +223,7 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
                 <Magnetic>
                   <a
                     href="#research"
+                    data-cursor-text="read"
                     className="inline-block border border-white/20 text-white px-6 py-2.5 font-body text-sm hover:border-white transition-colors"
                   >
                     Read the research →
@@ -196,13 +232,21 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
               </motion.div>
             </div>
 
-            <motion.div
-              className="absolute bottom-8 left-6 md:left-16"
-              animate={{ y: [0, 8, 0] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-            >
-              <div className="w-px h-12 bg-signal/50" />
-            </motion.div>
+            <div className="absolute bottom-8 left-6 right-6 md:left-16 md:right-16 flex items-end justify-between">
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+              >
+                <div className="w-px h-12 bg-signal/50" />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2, duration: 0.8 }}
+              >
+                <HeroTelemetry />
+              </motion.div>
+            </div>
           </section>
         </div>
 
@@ -210,7 +254,7 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
             CHAPTER 2 — RECONSTRUCTION
             300vh wrapper; sticky section with scroll-driven text reveal
             ─────────────────────────────────────────────────────────────────── */}
-        <div ref={ch2Ref} style={{ height: "300vh" }}>
+        <div ref={ch2Ref} style={{ height: "300vh", position: "relative" }}>
           <section
             id="chapter-2"
             className="relative flex flex-col justify-center"
@@ -276,7 +320,7 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
         {/* ───────────────────────────────────────────────────────────────────
             CHAPTER 3 — SYSTEMS  (canvas dims so cards are readable)
             ─────────────────────────────────────────────────────────────────── */}
-        <div ref={ch3Ref} id="content-after-chapters">
+        <div ref={ch3Ref} id="content-after-chapters" style={{ position: "relative" }}>
           <NowBar />
 
           {/* Sticky chapter label — rides the top edge of ch3 while you scroll */}
@@ -297,17 +341,22 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
               <span className="font-mono text-xs text-[#555] mb-12">Updated {nowLastUpdated}</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
-              {now.map((item) => (
+              {now.map((item, i) => (
                 <motion.div
                   key={item.heading}
-                  className="border-l-2 border-signal/30 pl-6"
-                  initial={{ opacity: 0, x: -15 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  className="flex gap-5"
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.4 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <h3 className="font-display font-bold text-lg text-signal mb-2">{item.heading}</h3>
-                  <p className="text-[#999] font-body leading-relaxed">{item.content}</p>
+                  <span className="font-mono text-[11px] text-signal/60 pt-1.5 shrink-0">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <h3 className="font-display font-bold text-lg text-signal mb-2">{item.heading}</h3>
+                    <p className="text-[#999] font-body leading-relaxed">{item.content}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -377,7 +426,7 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
         {/* ───────────────────────────────────────────────────────────────────
             CHAPTER 4 — RESEARCH  (canvas re-brightens + shifts signal→phase blue)
             ─────────────────────────────────────────────────────────────────── */}
-        <div ref={ch4Ref} id="research">
+        <div ref={ch4Ref} id="research" style={{ position: "relative" }}>
           <div
             className="sticky top-0 z-20 flex items-center gap-4 px-6 md:px-16 py-2 border-b border-white/5"
             style={{ background: "rgba(10,10,10,0.85)", backdropFilter: "blur(8px)" }}
@@ -396,7 +445,7 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
         {/* ───────────────────────────────────────────────────────────────────
             CHAPTER 5 — TRANSMISSION  (canvas fades toward black at the close)
             ─────────────────────────────────────────────────────────────────── */}
-        <div ref={ch5Ref}>
+        <div ref={ch5Ref} style={{ position: "relative" }}>
           <div
             className="sticky top-0 z-20 flex items-center gap-4 px-6 md:px-16 py-2 border-b border-white/5"
             style={{ background: "rgba(10,10,10,0.85)", backdropFilter: "blur(8px)" }}
