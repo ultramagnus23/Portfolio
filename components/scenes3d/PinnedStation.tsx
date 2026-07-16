@@ -29,7 +29,15 @@ export default function PinnedStation({
   // would blow the frame budget (and, in constrained environments, hang the
   // renderer outright). Not `once: true`: this intentionally tears down the
   // Canvas/GL context when it's no longer relevant.
-  const inView = useInView(wrapperRef, { margin: "30% 0px 30% 0px" });
+  //
+  // Margin is a full viewport-height on each side (not the tight ~30% used
+  // originally) — the actual mount still has to pay for the dynamic import's
+  // chunk fetch + WebGL context creation, and a narrow margin meant that
+  // cost was paid mid-scroll, so the laptop/floor visibly popped in late.
+  // The chunk itself is also prefetched independently (see each Station's
+  // useEffect) so by the time this margin is crossed, only the (fast) Canvas
+  // mount is left to do.
+  const inView = useInView(wrapperRef, { margin: "100% 0px 100% 0px" });
 
   const { scrollYProgress } = useScroll({ target: wrapperRef, offset: ["start start", "end end"] });
   useMotionValueEvent(scrollYProgress, "change", (v) => {

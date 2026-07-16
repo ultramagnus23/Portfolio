@@ -19,11 +19,6 @@ export default function NowPage() {
           <p className="text-[#888] font-body leading-relaxed">{item.content}</p>
         </div>
       ))}
-
-      <p className="text-[#444] font-mono text-xs mt-16">
-        Inspired by <span className="text-[#666]">nownownow.com</span> — a page about what I&apos;m
-        focused on now, not a résumé.
-      </p>
     </main>
   );
 }
