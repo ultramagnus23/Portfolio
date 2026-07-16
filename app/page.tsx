@@ -21,6 +21,8 @@ import { now, nowLastUpdated } from "@/data/now";
 import { education } from "@/data/education";
 import { awards } from "@/data/awards";
 import { useSceneStore } from "@/lib/scrollStore";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { gsap, ScrollTrigger, ensureScrollTrigger } from "@/lib/gsap";
 
 // WebGL only exists on the client, and the bundle is large enough to be
 // worth deferring off the critical path entirely.
@@ -81,9 +83,13 @@ function ChapterLabel({ n, label }: { n: string; label: string }) {
 function HomeContent() {
   const ch1Ref = useRef<HTMLDivElement>(null);
   const ch2Ref = useRef<HTMLDivElement>(null);
+  const ch2SectionRef = useRef<HTMLElement>(null);
+  const ch2ContentRef = useRef<HTMLDivElement>(null);
   const ch3Ref = useRef<HTMLDivElement>(null); // Systems — projects
   const ch4Ref = useRef<HTMLDivElement>(null); // Research
   const ch5Ref = useRef<HTMLDivElement>(null); // Transmission — rest + contact
+  const wipeRef = useRef<HTMLDivElement>(null);
+  const reduced = usePrefersReducedMotion();
 
   const { scrollYProgress: ch1Progress } = useScroll({ target: ch1Ref, offset: ["start start", "end end"] });
   const { scrollYProgress: ch2Progress } = useScroll({ target: ch2Ref, offset: ["start start", "end end"] });
@@ -102,8 +108,100 @@ function HomeContent() {
   useMotionValueEvent(ch4Progress, "change", (v) => setProgress(0.65 + v * 0.2));
   useMotionValueEvent(ch5Progress, "change", (v) => setProgress(0.85 + v * 0.15));
 
+  // Three distinct GSAP ScrollTrigger chapter transitions — each a different
+  // mechanism, not a repeat of the fade+y pattern used on leaf content:
+  //   Ch1→Ch2: clip-path reveal uncovers the next chapter.
+  //   Ch2→Ch3: a pinned recede — Ch2 scales/pulls back in 3D space, handing
+  //            off to Ch3 like a camera pushing through the scene.
+  //   Ch4→Ch5: a phase-blue → signal-green color wipe synced to the same
+  //            scroll range that drives the particle field's color lerp.
+  useEffect(() => {
+    if (reduced) return; // accessible fallback: skip the scroll-jacked treatments entirely
+    ensureScrollTrigger();
+
+    const ctx = gsap.context(() => {
+      // Ch1 → Ch2: clip-path reveal
+      if (ch2ContentRef.current && ch2Ref.current) {
+        gsap.fromTo(
+          ch2ContentRef.current,
+          { clipPath: "inset(0 0 100% 0)" },
+          {
+            clipPath: "inset(0 0 0% 0)",
+            ease: "none",
+            scrollTrigger: {
+              trigger: ch2Ref.current,
+              start: "top bottom",
+              end: "top 15%",
+              scrub: 0.6,
+            },
+          }
+        );
+      }
+
+      // Ch2 → Ch3: pinned recede — the whole chapter-2 section shrinks and
+      // pulls back in perspective space as it hands off to Systems.
+      if (ch2SectionRef.current && ch2Ref.current) {
+        gsap.set(ch2SectionRef.current, { transformOrigin: "50% 50%", willChange: "transform" });
+        gsap.fromTo(
+          ch2SectionRef.current,
+          { scale: 1, z: 0, opacity: 1 },
+          {
+            scale: 0.82,
+            z: -260,
+            opacity: 0.35,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ch2Ref.current,
+              start: "bottom 90%",
+              end: "bottom 10%",
+              scrub: 0.6,
+            },
+          }
+        );
+      }
+
+      // Ch4 → Ch5: color-field wipe, synced to the same ch5Ref boundary that
+      // drives useSceneStore's progress (0.85) and the particle field's
+      // SIGNAL→PHASE color lerp.
+      if (wipeRef.current && ch5Ref.current) {
+        const wipeTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: ch5Ref.current,
+            start: "top bottom",
+            end: "top 45%",
+            scrub: 0.6,
+          },
+        });
+        wipeTl
+          .fromTo(
+            wipeRef.current,
+            { opacity: 0, clipPath: "inset(0 100% 0 0)" },
+            { opacity: 0.5, clipPath: "inset(0 0% 0 0)", ease: "none", duration: 0.5 }
+          )
+          .to(wipeRef.current, { opacity: 0, clipPath: "inset(0 0 0 100%)", ease: "none", duration: 0.5 });
+      }
+    });
+
+    return () => ctx.revert();
+  }, [reduced]);
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+      {!reduced && (
+        <div
+          ref={wipeRef}
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 15,
+            pointerEvents: "none",
+            opacity: 0,
+            background: "linear-gradient(120deg, #5E8CDB 0%, #00FF94 100%)",
+            mixBlendMode: "screen",
+          }}
+        />
+      )}
       <main style={{ position: "relative", zIndex: 2 }}>
 
         {/* ───────────────────────────────────────────────────────────────────
@@ -117,6 +215,7 @@ function HomeContent() {
             style={{ position: "sticky", top: 0, height: "100vh" }}
           >
             <div className="relative z-10 px-6 md:px-16 pt-24">
+              <div className="text-scrim" aria-hidden="true" />
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -209,19 +308,19 @@ function HomeContent() {
             CHAPTER 2 — RECONSTRUCTION
             300vh wrapper; sticky section with scroll-driven text reveal
             ─────────────────────────────────────────────────────────────────── */}
-        <div ref={ch2Ref} style={{ height: "300vh", position: "relative" }}>
+        <div ref={ch2Ref} style={{ height: "300vh", position: "relative", perspective: "1000px" }}>
           <section
+            ref={ch2SectionRef}
             id="chapter-2"
             className="relative flex flex-col justify-center"
             style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}
           >
-            <motion.div
+            <div
+              ref={ch2ContentRef}
               className="relative z-10 px-6 md:px-16 pt-20 space-y-6 max-w-2xl"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6 }}
+              style={reduced ? undefined : { clipPath: "inset(0 0 100% 0)" }}
             >
+              <div className="text-scrim" aria-hidden="true" />
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40">
                 02 — Reconstruction
               </p>
@@ -258,7 +357,7 @@ function HomeContent() {
                   Get in touch →
                 </a>
               </div>
-            </motion.div>
+            </div>
           </section>
         </div>
 

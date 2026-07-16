@@ -8,9 +8,9 @@ import { useSceneStore } from "@/lib/scrollStore";
 import ScrambleText from "@/components/ScrambleText";
 import Magnetic from "@/components/Magnetic";
 import MetricValue from "@/components/MetricValue";
-import CollegeOSScene from "@/components/scenes/CollegeOSScene";
-import MezaScene from "@/components/scenes/MezaScene";
-import FoodSafeScene from "@/components/scenes/FoodSafeScene";
+import CollegeOSStation from "@/components/scenes3d/CollegeOSStation";
+import MezaStation from "@/components/scenes3d/MezaStation";
+import FoodSafeStation from "@/components/scenes3d/FoodSafeStation";
 
 const STATUS_LABEL: Record<string, string> = {
   live: "Live",
@@ -19,13 +19,14 @@ const STATUS_LABEL: Record<string, string> = {
   planned: "Planned",
 };
 
-// Flagship projects get a bespoke, animated device scene instead of the
-// generic checklist treatment — this is where "no cards" becomes "the
-// project comes alive."
-const SCENES: Record<string, ComponentType<{ accent: string }>> = {
-  collegeos: CollegeOSScene,
-  meza: MezaScene,
-  "foodsafe-india": FoodSafeScene,
+// Flagship projects get a full pinned 3D cinematic sequence (own scroll
+// real estate, own Canvas, camera + scroll-driven object animation) instead
+// of the generic checklist treatment — everything else keeps the lighter
+// list-style scene inline below.
+const FLAGSHIP_SCENES: Record<string, ComponentType<{ accent: string }>> = {
+  collegeos: CollegeOSStation,
+  meza: MezaStation,
+  "foodsafe-india": FoodSafeStation,
 };
 
 /**
@@ -35,7 +36,7 @@ const SCENES: Record<string, ComponentType<{ accent: string }>> = {
  */
 export default function ProjectStation({ project, index }: { project: Project; index: number }) {
   const accent = project.accent;
-  const Scene = SCENES[project.slug];
+  const FlagshipScene = FLAGSHIP_SCENES[project.slug];
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
 
@@ -51,6 +52,43 @@ export default function ProjectStation({ project, index }: { project: Project; i
     rotateY.set(0);
   };
 
+  return (
+    <>
+      {FlagshipScene && (
+        <div className="relative -mx-6 md:-mx-16 border-b border-white/5">
+          <FlagshipScene accent={accent} />
+        </div>
+      )}
+      <ProjectStationBody
+        project={project}
+        index={index}
+        accent={accent}
+        rotateX={rotateX}
+        rotateY={rotateY}
+        handleMove={handleMove}
+        handleLeave={handleLeave}
+      />
+    </>
+  );
+}
+
+function ProjectStationBody({
+  project,
+  index,
+  accent,
+  rotateX,
+  rotateY,
+  handleMove,
+  handleLeave,
+}: {
+  project: Project;
+  index: number;
+  accent: string;
+  rotateX: ReturnType<typeof useMotionValue<number>>;
+  rotateY: ReturnType<typeof useMotionValue<number>>;
+  handleMove: (e: React.MouseEvent<HTMLElement>) => void;
+  handleLeave: () => void;
+}) {
   return (
     <motion.article
       className="relative py-20 md:py-28 border-b border-white/5 last:border-b-0"
@@ -86,12 +124,6 @@ export default function ProjectStation({ project, index }: { project: Project; i
 
         <p className="font-body italic text-[#999] text-lg mb-6 max-w-xl">{project.tagline}</p>
         <p className="text-white/70 font-body leading-relaxed max-w-2xl mb-10">{project.description}</p>
-
-        {Scene && (
-          <div className="max-w-2xl mb-10">
-            <Scene accent={accent} />
-          </div>
-        )}
 
         <div className="flex flex-wrap gap-x-10 gap-y-5 mb-10">
           {project.metrics.map((m) => (

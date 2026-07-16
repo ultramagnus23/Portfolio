@@ -7,6 +7,7 @@ import { useSceneStore } from "@/lib/scrollStore";
 import { AudioController } from "@/lib/audio";
 import type { PointerState } from "@/hooks/useNormalizedPointer";
 import { VERTEX, FRAGMENT } from "./shaders";
+import { BANDS, smoothstep, lerp, bandIndex } from "./bands";
 import {
   genNoise,
   genOrb,
@@ -16,41 +17,23 @@ import {
   genSingularity,
 } from "./targets";
 
-// Progress bands mirror the 5 sticky DOM chapters in app/page.tsx exactly —
-// Arrival / Reconstruction / Systems / Research / Transmission — so the
-// particle formation and the scroll-pinned copy always agree on where each
-// chapter starts and ends.
-const BANDS = [0, 0.2, 0.4, 0.65, 0.85, 1.0];
-
 const SIGNAL = new THREE.Color("#00FF94");
 const PHASE = new THREE.Color("#5E8CDB");
 
-function smoothstep(edge0: number, edge1: number, x: number) {
-  const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
-  return t * t * (3 - 2 * t);
-}
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * t;
-}
-
-function bandIndex(p: number): number {
-  for (let i = 0; i < BANDS.length - 2; i++) {
-    if (p < BANDS[i + 1]) return i;
-  }
-  return BANDS.length - 2;
-}
-
-// Readability-first opacity envelope. The field is only bright in the hero
-// (barely any text) and during the final transmission collapse; everywhere
-// there's a wall of copy it drops to a faint ambient wash so the DOM stays
-// legible. Research gets a small bump because the blue interference is a
-// deliberate feature, but still stays low enough to read over.
+// The field is a genuine presence in every chapter now — text contrast is
+// handled by a DOM scrim (see .text-scrim in app/globals.css) sitting
+// between the fixed canvas and the copy, not by muting the field itself.
+// Each chapter still gets its own character: brightest at the hero and the
+// transmission collapse, a wide mid-range floor everywhere else so systems
+// and research both read the field clearly.
 function fieldOpacity(p: number): number {
-  const heroToText = lerp(0.8, 0.15, smoothstep(0.14, 0.24, p)); // bright hero → dim text
-  const researchBump = lerp(0, 0.16, smoothstep(0.63, 0.72, p)) * (1 - smoothstep(0.82, 0.9, p));
+  const heroToMid = lerp(0.85, 0.42, smoothstep(0.14, 0.26, p)); // bright hero → sustained mid
+  const systemsBump = lerp(0, 0.12, smoothstep(0.38, 0.48, p)) * (1 - smoothstep(0.6, 0.65, p));
+  const researchBump = lerp(0, 0.22, smoothstep(0.63, 0.72, p)) * (1 - smoothstep(0.82, 0.9, p));
   const collapse = smoothstep(0.9, 0.95, p) * lerp(1, 0, smoothstep(0.95, 1, p)); // brief flare, then out
   const outro = 1 - smoothstep(0.9, 1, p);
-  return (Math.max(heroToText, 0.12) + researchBump) * outro + collapse * 0.7;
+  const base = Math.max(heroToMid, 0.4) + systemsBump + researchBump;
+  return base * outro + collapse * 0.75;
 }
 
 interface ParticleFieldProps {
