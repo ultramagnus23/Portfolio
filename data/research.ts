@@ -11,9 +11,9 @@ export const research = {
   premise:
     "Holographic-display research tends to optimise for physical fidelity (PSNR, SSIM). But a viewer doesn't see a number — they see an image. HoloForge simulates a phase-only holographic display end to end, then degrades it one axis at a time to find where physical and perceptual quality stop agreeing. Those divergence points are where real display-engineering budget should go.",
   // status line — edit as the work progresses
-  statusLabel: "In progress",
+  statusLabel: "Part 1 preprint out · Part 2 in progress",
   status:
-    "Simulation framework and degradation sweeps complete. Writing up a comparative study, targeting an arXiv preprint (cs.GR / eess.IV). No preprint link yet — it's genuinely in progress.",
+    "Simulation framework and degradation sweeps complete, with Part 1 released as a preprint (arXiv / Optica Open). Part 2 is in progress — a media-in-the-loop model with a differentiable photopolymer recording step, plus a gradient-descent phase-retrieval baseline.",
   methods: [
     {
       name: "Angular-Spectrum propagation",

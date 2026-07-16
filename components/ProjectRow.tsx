@@ -45,8 +45,7 @@ export default function ProjectRow({
         {project.id}
       </div>
 
-      <div className="relative py-12 px-8 md:px-16 flex flex-col md:flex-row md:items-center gap-8 group-hover:bg-white/[0.02] transition-colors">
-        {/* Left: info */}
+      <div className="relative py-12 px-8 md:px-16 group-hover:bg-white/[0.02] transition-colors">
         <div className="flex-1 space-y-4">
           <div className="flex items-center gap-3">
             <span
@@ -112,11 +111,6 @@ export default function ProjectRow({
               </a>
             )}
           </div>
-        </div>
-
-        {/* Right: decorative visual placeholder */}
-        <div className="hidden md:flex w-48 h-48 items-center justify-center border border-white/5 shrink-0">
-          <div className="text-white/10 font-display text-6xl font-bold">{project.id}</div>
         </div>
       </div>
     </motion.div>

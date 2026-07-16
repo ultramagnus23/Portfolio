@@ -1,25 +1,30 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
 import Loader from "@/components/Loader";
 import NowBar from "@/components/NowBar";
 import ScrambleText from "@/components/ScrambleText";
 import Magnetic from "@/components/Magnetic";
-import ProjectCard from "@/components/ProjectCard";
+import ProjectStation from "@/components/ProjectStation";
 import ResearchSection from "@/components/ResearchSection";
 import Timeline from "@/components/Timeline";
 import SkillCloud from "@/components/SkillCloud";
 import ExperienceAccordion from "@/components/ExperienceAccordion";
 import LeadershipGrid from "@/components/LeadershipGrid";
 import ContactSection from "@/components/ContactSection";
-import InterferenceField from "@/components/InterferenceField";
+import SmoothScroll from "@/components/SmoothScroll";
 import { currentProjects, earlierProjects } from "@/data/projects";
 import { now, nowLastUpdated } from "@/data/now";
 import { education } from "@/data/education";
 import { awards } from "@/data/awards";
-import { AudioController } from "@/lib/audio";
+import { useSceneStore } from "@/lib/scrollStore";
+
+// WebGL only exists on the client, and the bundle is large enough to be
+// worth deferring off the critical path entirely.
+const SceneCanvas = dynamic(() => import("@/components/scene/SceneCanvas"), { ssr: false });
 
 function SectionHeading({ children, eyebrow }: { children: string; eyebrow?: string }) {
   return (
@@ -73,7 +78,7 @@ function ChapterLabel({ n, label }: { n: string; label: string }) {
 // HomeContent — mounts only after Loader completes so all refs are hydrated
 // when useScroll reads them.
 // ─────────────────────────────────────────────────────────────────────────────
-function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<number> }) {
+function HomeContent() {
   const ch1Ref = useRef<HTMLDivElement>(null);
   const ch2Ref = useRef<HTMLDivElement>(null);
   const ch3Ref = useRef<HTMLDivElement>(null); // Systems — projects
@@ -86,35 +91,19 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
   const { scrollYProgress: ch4Progress } = useScroll({ target: ch4Ref, offset: ["start end", "end end"] });
   const { scrollYProgress: ch5Progress } = useScroll({ target: ch5Ref, offset: ["start end", "end end"] });
 
-  // Drive WavefrontCanvas progress across all five chapters:
+  // Drive the SceneCanvas particle engine across all five chapters:
   // Ch1: 0.0–0.2  Ch2: 0.2–0.4  Ch3: 0.4–0.65  Ch4: 0.65–0.85  Ch5: 0.85–1.0
-  useMotionValueEvent(ch1Progress, "change", (v) => {
-    progressRef.current = v * 0.2;
-    if (v > 0.1) AudioController.instance.setChapter(1);
-  });
-  useMotionValueEvent(ch2Progress, "change", (v) => {
-    progressRef.current = 0.2 + v * 0.2;
-    if (v > 0.05) AudioController.instance.setChapter(2);
-  });
-  useMotionValueEvent(ch3Progress, "change", (v) => {
-    progressRef.current = 0.4 + v * 0.25;
-    if (v > 0.05) AudioController.instance.setChapter(3);
-  });
-  useMotionValueEvent(ch4Progress, "change", (v) => {
-    progressRef.current = 0.65 + v * 0.2;
-    if (v > 0.05) AudioController.instance.setChapter(4);
-  });
-  useMotionValueEvent(ch5Progress, "change", (v) => {
-    progressRef.current = 0.85 + v * 0.15;
-    if (v > 0.05) AudioController.instance.setChapter(5);
-  });
-
+  // (chapter/audio derivation lives in ParticleField, which reads this
+  // progress value imperatively — see components/scene/ParticleField.tsx)
+  const setProgress = useSceneStore((s) => s.setProgress);
+  useMotionValueEvent(ch1Progress, "change", (v) => setProgress(v * 0.2));
+  useMotionValueEvent(ch2Progress, "change", (v) => setProgress(0.2 + v * 0.2));
+  useMotionValueEvent(ch3Progress, "change", (v) => setProgress(0.4 + v * 0.25));
+  useMotionValueEvent(ch4Progress, "change", (v) => setProgress(0.65 + v * 0.2));
+  useMotionValueEvent(ch5Progress, "change", (v) => setProgress(0.85 + v * 0.15));
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      {/* Fixed interference field backdrop */}
-      <InterferenceField progressRef={progressRef} />
-
       <main style={{ position: "relative", zIndex: 2 }}>
 
         {/* ───────────────────────────────────────────────────────────────────
@@ -196,10 +185,14 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
 
             <div className="absolute bottom-8 left-6 right-6 md:left-16 md:right-16 flex items-end justify-between">
               <motion.div
-                animate={{ y: [0, 8, 0] }}
+                className="flex items-center gap-3"
+                animate={{ y: [0, 6, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
               >
-                <div className="w-px h-12 bg-signal/50" />
+                <div className="w-px h-10 bg-gradient-to-b from-signal/60 to-transparent" />
+                <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-signal/40">
+                  scroll
+                </span>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -314,50 +307,44 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
             </div>
           </section>
 
-          {/* SELECTED WORK */}
+          {/* SELECTED WORK — no cards; each project is a scene */}
           <section id="work" className="py-24 px-6 md:px-16 border-t border-white/10">
             <SectionHeading eyebrow="Selected work">Things I&apos;ve built</SectionHeading>
-            <p className="text-[#888] font-body -mt-6 mb-12">
-              Currently shipping. Click any card to open the technical breakdown.
-            </p>
-            <div className="grid grid-cols-1 gap-5">
+            <p className="text-[#888] font-body -mt-6 mb-4">Currently shipping.</p>
+            <div>
               {currentProjects.map((project, i) => (
-                <ProjectCard key={project.id} project={project} index={i} />
+                <ProjectStation key={project.id} project={project} index={i} />
               ))}
             </div>
 
-            <div className="mt-20">
-              <p className="font-mono text-[11px] uppercase tracking-wider text-[#666] mb-6">
+            <div className="mt-4">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-[#666] mb-2 pt-8">
                 Earlier — the track record
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
                 {earlierProjects.map((p, i) => (
                   <motion.div
                     key={p.id}
-                    className="border border-white/10 p-6 hover:bg-white/[0.02] transition-colors group"
-                    initial={{ opacity: 0, y: 20 }}
+                    className="flex flex-col md:flex-row md:items-baseline gap-x-6 gap-y-1 py-5 border-b border-white/5 last:border-b-0 group"
+                    initial={{ opacity: 0, y: 12 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
-                    transition={{ delay: i * 0.08, duration: 0.4 }}
+                    transition={{ delay: i * 0.05, duration: 0.4 }}
                   >
-                    <div className="flex items-baseline justify-between mb-3">
-                      <h4 className="font-display font-bold text-xl text-white group-hover:text-signal transition-colors">
-                        {p.title}
-                      </h4>
-                      <span className="font-mono text-xs text-[#555]">{p.year}</span>
-                    </div>
-                    <p className="text-[#888] font-body text-sm leading-relaxed mb-4">{p.tagline}</p>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1">
-                      {p.metrics.slice(0, 2).map((m) => (
-                        <span key={m.label} className="font-mono text-[11px] text-[#777]">
-                          <span style={{ color: p.accent }}>{m.value}</span> · {m.label}
-                        </span>
-                      ))}
-                    </div>
+                    <h4 className="font-display font-bold text-lg text-white group-hover:text-signal transition-colors shrink-0">
+                      {p.title}
+                    </h4>
+                    <span className="font-mono text-xs text-[#555] shrink-0">{p.year}</span>
+                    <p className="text-[#888] font-body text-sm flex-1">{p.tagline}</p>
+                    {p.metrics[0] && (
+                      <span className="font-mono text-[11px] text-[#777] shrink-0">
+                        <span style={{ color: p.accent }}>{p.metrics[0].value}</span> · {p.metrics[0].label}
+                      </span>
+                    )}
                     {p.hasCaseStudy && (
                       <Link
                         href={`/projects/${p.slug}`}
-                        className="inline-block mt-4 font-mono text-xs text-signal hover:text-white transition-colors"
+                        className="font-mono text-xs text-signal hover:text-white transition-colors shrink-0"
                       >
                         case study →
                       </Link>
@@ -494,12 +481,12 @@ function HomeContent({ progressRef }: { progressRef: React.MutableRefObject<numb
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Home() {
   const [loaded, setLoaded] = useState(false);
-  const progressRef = useRef<number>(0) as React.MutableRefObject<number>;
 
   return (
-    <>
+    <SmoothScroll>
+      <SceneCanvas />
       <AnimatePresence>{!loaded && <Loader onComplete={() => setLoaded(true)} />}</AnimatePresence>
-      {loaded && <HomeContent progressRef={progressRef} />}
-    </>
+      {loaded && <HomeContent />}
+    </SmoothScroll>
   );
 }

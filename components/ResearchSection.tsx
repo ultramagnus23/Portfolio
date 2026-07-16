@@ -2,6 +2,9 @@
 
 import { motion } from "framer-motion";
 import { research } from "@/data/research";
+import HoloForgeScene from "@/components/scenes/HoloForgeScene";
+
+const HOLOFORGE_ACCENT = "#5BC8FF";
 
 function barColor(v: number) {
   // green when perception survives, amber mid, red at the cliff
@@ -48,6 +51,16 @@ export default function ResearchSection() {
         >
           {research.premise}
         </motion.p>
+
+        <motion.div
+          className="max-w-2xl mt-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          <HoloForgeScene accent={HOLOFORGE_ACCENT} />
+        </motion.div>
 
         <div className="grid md:grid-cols-2 gap-12 mt-16">
           {/* methods */}
