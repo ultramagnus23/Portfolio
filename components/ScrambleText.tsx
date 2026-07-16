@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { createElement, useEffect, useRef, useState, useCallback } from "react";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ01<>/\\=+*#%";
@@ -91,15 +91,15 @@ export default function ScrambleText({
     };
   }, [run, trigger, reduced, text]);
 
-  const Tag = as as React.ElementType;
-  return (
-    <Tag
-      ref={ref}
-      className={className}
-      onMouseEnter={hover ? run : undefined}
-      aria-label={text}
-    >
-      <span aria-hidden="true">{display || " "}</span>
-    </Tag>
+  const Tag = as;
+  return createElement(
+    Tag,
+    {
+      ref,
+      className,
+      onMouseEnter: hover ? run : undefined,
+      "aria-label": text,
+    },
+    <span aria-hidden="true" key="display">{display || " "}</span>
   );
 }
