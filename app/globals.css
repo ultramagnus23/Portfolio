@@ -126,6 +126,26 @@
   transform: scale(0.571);
 }
 
+/* Text scrim — sits between the fixed particle canvas (z-index:1) and copy
+   (z-index:2) so the field can stay genuinely visible while text stays
+   legible via contrast (blur + radial darkening), not via a global opacity
+   cap on the field itself. */
+.text-scrim {
+  position: absolute;
+  inset: -8% -6%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 85% 80% at 30% 40%,
+    rgba(9, 11, 10, 0.82) 0%,
+    rgba(9, 11, 10, 0.62) 45%,
+    rgba(9, 11, 10, 0.15) 78%,
+    transparent 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
 /* Grain overlay */
 .grain::after {
   content: '';
