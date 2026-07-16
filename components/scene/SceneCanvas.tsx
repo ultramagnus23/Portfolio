@@ -8,8 +8,11 @@ import { useNormalizedPointer } from "@/hooks/useNormalizedPointer";
 import ParticleField from "./ParticleField";
 import CameraRig from "./CameraRig";
 
-const DESKTOP_COUNT = 22000;
-const MOBILE_COUNT = 8000;
+// Kept deliberately restrained — a dense cloud reads as noise, not signal.
+// Fewer, better-composed points let the formations (orb, wavefront, lattice,
+// interference, singularity) actually read as shapes instead of static.
+const DESKTOP_COUNT = 7000;
+const MOBILE_COUNT = 2800;
 
 /**
  * The persistent backdrop for the whole scroll arc: one GPGPU-style point

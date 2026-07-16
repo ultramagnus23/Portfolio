@@ -284,14 +284,14 @@ function HomeContent() {
 
             <div className="absolute bottom-8 left-6 right-6 md:left-16 md:right-16 flex items-end justify-between">
               <motion.div
-                className="flex items-center gap-3"
+                className="flex flex-col items-center gap-2"
                 animate={{ y: [0, 6, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
               >
-                <div className="w-px h-10 bg-gradient-to-b from-signal/60 to-transparent" />
                 <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-signal/40">
                   scroll
                 </span>
+                <div className="w-px h-10 bg-gradient-to-b from-signal/60 to-transparent" />
               </motion.div>
               <motion.div
                 initial={{ opacity: 0 }}
