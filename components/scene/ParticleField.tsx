@@ -20,20 +20,18 @@ import {
 const SIGNAL = new THREE.Color("#00FF94");
 const PHASE = new THREE.Color("#5E8CDB");
 
-// The field is a genuine presence in every chapter now — text contrast is
-// handled by a DOM scrim (see .text-scrim in app/globals.css) sitting
-// between the fixed canvas and the copy, not by muting the field itself.
-// Each chapter still gets its own character: brightest at the hero and the
-// transmission collapse, a wide mid-range floor everywhere else so systems
-// and research both read the field clearly.
+// Restrained on purpose: a quiet ambient presence in every chapter — never
+// gone entirely, never loud enough to compete with the text sitting on top
+// of it. Brightest (still soft) at the hero and the transmission collapse,
+// a low sustained wash everywhere else.
 function fieldOpacity(p: number): number {
-  const heroToMid = lerp(0.85, 0.42, smoothstep(0.14, 0.26, p)); // bright hero → sustained mid
-  const systemsBump = lerp(0, 0.12, smoothstep(0.38, 0.48, p)) * (1 - smoothstep(0.6, 0.65, p));
-  const researchBump = lerp(0, 0.22, smoothstep(0.63, 0.72, p)) * (1 - smoothstep(0.82, 0.9, p));
+  const heroToMid = lerp(0.5, 0.2, smoothstep(0.14, 0.26, p)); // soft hero → quiet mid
+  const systemsBump = lerp(0, 0.05, smoothstep(0.38, 0.48, p)) * (1 - smoothstep(0.6, 0.65, p));
+  const researchBump = lerp(0, 0.09, smoothstep(0.63, 0.72, p)) * (1 - smoothstep(0.82, 0.9, p));
   const collapse = smoothstep(0.9, 0.95, p) * lerp(1, 0, smoothstep(0.95, 1, p)); // brief flare, then out
   const outro = 1 - smoothstep(0.9, 1, p);
-  const base = Math.max(heroToMid, 0.4) + systemsBump + researchBump;
-  return base * outro + collapse * 0.75;
+  const base = Math.max(heroToMid, 0.16) + systemsBump + researchBump;
+  return base * outro + collapse * 0.55;
 }
 
 interface ParticleFieldProps {
