@@ -10,7 +10,7 @@ import { VERTEX, FRAGMENT } from "./shaders";
 import { BANDS, smoothstep, lerp, bandIndex } from "./bands";
 import {
   genNoise,
-  genOrb,
+  genCT,
   genWavefront,
   genLattice,
   genInterference,
@@ -54,12 +54,12 @@ export default function ParticleField({ count, pointer }: ParticleFieldProps) {
     for (let i = 0; i < count; i++) randoms[i] = Math.random();
 
     // Scroll arc rests on a coherent formation at every chapter boundary:
-    // orb (arrival) → wavefront (reconstruction) → lattice (systems) →
-    // interference (research) → singularity (transmission) → dispersed away.
-    // Noise is NOT in the scroll arc — it's the one-time entrance seed the
-    // field reconstructs from as the loader lifts (uEntrance in the shader).
+    // CT wordmark (arrival) → wavefront (reconstruction) → lattice (systems)
+    // → interference (research) → singularity (transmission) → dispersed
+    // away. Noise is NOT in the scroll arc — it's the one-time entrance seed
+    // the field reconstructs from as the loader lifts (uEntrance in shader).
     geo.setAttribute("aNoise", new THREE.BufferAttribute(genNoise(count), 3));
-    geo.setAttribute("aP0", new THREE.BufferAttribute(genOrb(count), 3));
+    geo.setAttribute("aP0", new THREE.BufferAttribute(genCT(count), 3));
     geo.setAttribute("aP1", new THREE.BufferAttribute(genWavefront(count), 3));
     geo.setAttribute("aP2", new THREE.BufferAttribute(genLattice(count), 3));
     geo.setAttribute("aP3", new THREE.BufferAttribute(genInterference(count), 3));

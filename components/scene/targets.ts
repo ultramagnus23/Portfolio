@@ -21,7 +21,8 @@ export function genNoise(count: number): Float32Array {
   return out;
 }
 
-/** A coherent glowing orb — the signal, found. Chapter 1: Arrival. */
+/** A coherent glowing orb — the signal, found. Kept as a fallback shape for
+ *  environments without canvas text rasterisation (SSR / test contexts). */
 export function genOrb(count: number): Float32Array {
   const out = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
@@ -31,6 +32,62 @@ export function genOrb(count: number): Float32Array {
     out[i * 3] = r * Math.sin(phi) * Math.cos(theta);
     out[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.85;
     out[i * 3 + 2] = r * Math.cos(phi);
+  }
+  return out;
+}
+
+/**
+ * The particle field's brand mark — "CT." rasterised to an offscreen canvas
+ * and sampled into a point cloud, so the arrival formation reads as the
+ * signature, not a generic shape. Deliberately not crisp: curl-noise
+ * displacement in the vertex shader (and a coarse sample step here) keep it
+ * soft enough to be a background presence rather than literal text — you
+ * can tell it's CT without it competing with the copy on top of it.
+ * Chapter 1: Arrival.
+ */
+export function genCT(count: number): Float32Array {
+  const out = new Float32Array(count * 3);
+  if (typeof document === "undefined") return genOrb(count);
+
+  const W = 960;
+  const H = 440;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return genOrb(count);
+
+  ctx.fillStyle = "#fff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "700 300px Arial, sans-serif";
+  ctx.fillText("CT", W / 2 - 30, H / 2);
+  // The trailing dot from the "ct." wordmark in the site header.
+  ctx.beginPath();
+  ctx.arc(W / 2 + 268, H / 2 + 118, 20, 0, Math.PI * 2);
+  ctx.fill();
+
+  const { data } = ctx.getImageData(0, 0, W, H);
+  const points: number[] = []; // flat [x0,y0,x1,y1,...] pixel coords
+  const step = 3;
+  for (let y = 0; y < H; y += step) {
+    for (let x = 0; x < W; x += step) {
+      if (data[(y * W + x) * 4 + 3] > 128) {
+        points.push(x, y);
+      }
+    }
+  }
+  const samples = points.length / 2;
+  if (samples === 0) return genOrb(count);
+
+  for (let i = 0; i < count; i++) {
+    const s = Math.floor(Math.random() * samples) * 2;
+    const px = points[s];
+    const py = points[s + 1];
+    // Pixel space -> world space, centered, canvas-y (down) flipped to world-y (up).
+    out[i * 3] = (px / W - 0.5) * 9 + rand(-0.04, 0.04);
+    out[i * 3 + 1] = -(py / H - 0.5) * 4.1 + rand(-0.04, 0.04);
+    out[i * 3 + 2] = rand(-0.35, 0.35);
   }
   return out;
 }
