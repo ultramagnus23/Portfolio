@@ -178,7 +178,7 @@ export const projects: Project[] = [
     hasCaseStudy: true,
   },
   {
-    id: "04",
+    id: "01",
     slug: "holoforge",
     title: "HoloForge",
     tagline: "When you degrade a hologram, does it actually look worse — or just measure worse?",
@@ -224,7 +224,7 @@ export const projects: Project[] = [
     hasCaseStudy: true,
   },
   {
-    id: "08",
+    id: "04",
     slug: "music-morph",
     title: "Music Morph",
     tagline: "Control the mix with your hands, not a mouse.",
@@ -265,7 +265,7 @@ export const projects: Project[] = [
     hasCaseStudy: false,
   },
   {
-    id: "09",
+    id: "05",
     slug: "drill",
     title: "Drill",
     tagline: "One topic a day. Explain it back, out loud.",
@@ -304,7 +304,7 @@ export const projects: Project[] = [
     hasCaseStudy: false,
   },
   {
-    id: "10",
+    id: "06",
     slug: "the-global",
     title: "The Global",
     tagline: "A distributor's storefront, built for whoever updates it next.",
@@ -342,7 +342,7 @@ export const projects: Project[] = [
     hasCaseStudy: false,
   },
   {
-    id: "11",
+    id: "07",
     slug: "dash",
     title: "Dash",
     tagline: "One person, one login, everything in one place.",
@@ -379,7 +379,7 @@ export const projects: Project[] = [
     hasCaseStudy: false,
   },
   {
-    id: "12",
+    id: "08",
     slug: "airthra",
     title: "Airthra Research",
     tagline: "Mining the sky, fueling the earth.",
@@ -406,7 +406,7 @@ export const projects: Project[] = [
     hasCaseStudy: false,
   },
   {
-    id: "05",
+    id: "01",
     slug: "orenth",
     title: "Orenth",
     tagline: "We built a GPS for people, not places.",
@@ -446,7 +446,7 @@ export const projects: Project[] = [
     hasCaseStudy: true,
   },
   {
-    id: "06",
+    id: "02",
     slug: "collegapp",
     title: "CollegeApp",
     tagline: "6,000 users didn't ask for it — they just showed up.",
@@ -477,7 +477,7 @@ export const projects: Project[] = [
     hasCaseStudy: false,
   },
   {
-    id: "07",
+    id: "03",
     slug: "klein-b",
     title: "Klein B",
     tagline: "A water flea and a fern walked into a lake.",

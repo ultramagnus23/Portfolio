@@ -81,12 +81,12 @@ export const VERTEX = /* glsl */ `
     // glow = how "in transit" this particle is (morph pulse + entrance flare)
     vGlow = flight * uPulse + entranceGlow * 0.7;
 
-    float sizeBase = mix(1.4, 2.0, eased) + vGlow * 1.0;
+    float sizeBase = mix(1.7, 2.3, eased) + vGlow * 1.1;
     // Hard cap keeps a transition burst from spawning huge sprites that peg
     // fill rate (and stall software-WebGL fallbacks) during the flare.
-    gl_PointSize = min(sizeBase * uPixelRatio * (9.0 / -mvPosition.z), 6.0);
+    gl_PointSize = min(sizeBase * uPixelRatio * (9.0 / -mvPosition.z), 6.5);
 
-    vAlpha = mix(0.28, 0.72, eased) + vGlow * 0.35;
+    vAlpha = mix(0.36, 0.8, eased) + vGlow * 0.4;
     vSettle = eased;
   }
 `;
@@ -107,6 +107,6 @@ export const FRAGMENT = /* glsl */ `
     float core = smoothstep(0.12, 0.0, d) * vSettle;
     // in-transit particles flare toward white so a morph reads as a spark burst
     vec3 col = mix(uColor, vec3(1.0), vGlow * 0.6) + core * 0.22;
-    gl_FragColor = vec4(col, glow * vAlpha * uOpacity * 0.58);
+    gl_FragColor = vec4(col, glow * vAlpha * uOpacity * 0.68);
   }
 `;
