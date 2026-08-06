@@ -1,15 +1,31 @@
-// AudioController — singleton, never auto-plays, initialised only on first user gesture.
-// Three layers: carrier (60 Hz drone), field (chapter-reactive pad), touch (cursor chirp).
+// AudioController — singleton, never auto-plays, initialised only on first
+// user gesture. Two layers now: a quiet 60 Hz carrier drone (foundation),
+// and a generative "song" — pluck, bass and drum voices scheduled from a
+// deterministic sequence sonifying this site's own content (see
+// lib/sonify.ts). Nothing here is a sample or a copy of an existing
+// recording; every note is synthesised and derived from hashing text.
+
+import { buildSequence, midiToFreq, type NoteEvent } from "./sonify";
+
+const TEMPO_BPM = 96;
+const LOOKAHEAD_MS = 25;
+const SCHEDULE_AHEAD_S = 0.12;
 
 export class AudioController {
   private static _instance: AudioController | null = null;
 
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
-  private fieldFilter: BiquadFilterNode | null = null;
+  private songGain: GainNode | null = null;
+  private pluckFilter: BiquadFilterNode | null = null;
   private _muted = true;
   private _chapter = 0;
   private lastTouchMs = 0;
+
+  private sequence: NoteEvent[] = [];
+  private seqIndex = 0;
+  private nextNoteTime = 0;
+  private schedulerId: number | null = null;
 
   static get instance(): AudioController {
     if (!AudioController._instance) {
@@ -27,9 +43,9 @@ export class AudioController {
     this.masterGain.gain.value = 0; // always start muted
     this.masterGain.connect(this.ctx.destination);
 
-    // ── Carrier: 60 Hz sine + slow FM mod ────────────────────────────────
+    // ── Carrier: 60 Hz sine + slow FM mod — quiet foundation under the song ──
     const carrierGain = this.ctx.createGain();
-    carrierGain.gain.value = 0.03;
+    carrierGain.gain.value = 0.025;
     carrierGain.connect(this.masterGain);
 
     const carrierOsc = this.ctx.createOscillator();
@@ -49,28 +65,131 @@ export class AudioController {
     carrierOsc.start();
     modOsc.start();
 
-    // ── Field: band-pass noise pad, shifts timbre per chapter ─────────────
-    const fieldGain = this.ctx.createGain();
-    fieldGain.gain.value = 0.08;
-    fieldGain.connect(this.masterGain);
+    // ── Song bus: every pluck/bass/drum voice routes through here, then a
+    // per-chapter lowpass filter that brightens/dulls the pluck as you
+    // scroll ─────────────────────────────────────────────────────────────
+    this.songGain = this.ctx.createGain();
+    this.songGain.gain.value = 0.9;
+    this.songGain.connect(this.masterGain);
 
-    this.fieldFilter = this.ctx.createBiquadFilter();
-    this.fieldFilter.type = "bandpass";
-    this.fieldFilter.frequency.value = 400;
-    this.fieldFilter.Q.value = 8;
-    this.fieldFilter.connect(fieldGain);
+    this.pluckFilter = this.ctx.createBiquadFilter();
+    this.pluckFilter.type = "lowpass";
+    this.pluckFilter.frequency.value = 2200;
+    this.pluckFilter.Q.value = 0.7;
+    this.pluckFilter.connect(this.songGain);
 
-    // White-noise buffer source (loop)
-    const bufLen = this.ctx.sampleRate * 2;
-    const buf = this.ctx.createBuffer(1, bufLen, this.ctx.sampleRate);
+    this.sequence = buildSequence();
+    this.startScheduler();
+  }
+
+  private beatSeconds() {
+    return 60 / TEMPO_BPM;
+  }
+
+  private startScheduler() {
+    if (!this.ctx) return;
+    this.nextNoteTime = this.ctx.currentTime + 0.1;
+    this.schedulerId = window.setInterval(() => this.tick(), LOOKAHEAD_MS);
+  }
+
+  private tick() {
+    if (!this.ctx) return;
+    while (this.nextNoteTime < this.ctx.currentTime + SCHEDULE_AHEAD_S) {
+      const note = this.sequence[this.seqIndex];
+      this.scheduleNote(note, this.nextNoteTime);
+      this.nextNoteTime += note.duration * this.beatSeconds();
+      this.seqIndex = (this.seqIndex + 1) % this.sequence.length;
+    }
+  }
+
+  private scheduleNote(note: NoteEvent, time: number) {
+    this.pluck(note, time);
+    if (note.isBassBeat) this.bassNote(note, time);
+    if (note.drum === "kick") this.kick(time);
+    if (note.drum === "hat") this.hat(time);
+  }
+
+  // Plucked-string-style voice: fast attack, exponential decay, lowpass —
+  // reads as a soft guitar/mbira pluck rather than a synth stab.
+  private pluck(note: NoteEvent, time: number) {
+    const ctx = this.ctx;
+    if (!ctx || !this.pluckFilter) return;
+    const osc = ctx.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.value = midiToFreq(note.midi);
+
+    const g = ctx.createGain();
+    const dur = note.duration * this.beatSeconds();
+    const peak = note.velocity * 0.1;
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(peak, time + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0008, time + dur * 0.95);
+
+    osc.connect(g);
+    g.connect(this.pluckFilter);
+    osc.start(time);
+    osc.stop(time + dur);
+  }
+
+  private bassNote(note: NoteEvent, time: number) {
+    const ctx = this.ctx;
+    if (!ctx || !this.songGain) return;
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.value = midiToFreq(note.midi - 24); // two octaves down
+
+    const g = ctx.createGain();
+    const dur = this.beatSeconds() * 1.6;
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(0.12, time + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0008, time + dur);
+
+    osc.connect(g);
+    g.connect(this.songGain);
+    osc.start(time);
+    osc.stop(time + dur + 0.05);
+  }
+
+  private kick(time: number) {
+    const ctx = this.ctx;
+    if (!ctx || !this.songGain) return;
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(140, time);
+    osc.frequency.exponentialRampToValueAtTime(45, time + 0.12);
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.32, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+
+    osc.connect(g);
+    g.connect(this.songGain);
+    osc.start(time);
+    osc.stop(time + 0.2);
+  }
+
+  private hat(time: number) {
+    const ctx = this.ctx;
+    if (!ctx || !this.songGain) return;
+    const bufLen = Math.floor(ctx.sampleRate * 0.05);
+    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
     const data = buf.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+    for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufLen);
 
-    const noiseNode = this.ctx.createBufferSource();
-    noiseNode.buffer = buf;
-    noiseNode.loop = true;
-    noiseNode.connect(this.fieldFilter);
-    noiseNode.start();
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const filt = ctx.createBiquadFilter();
+    filt.type = "highpass";
+    filt.frequency.value = 6000;
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.1, time);
+    g.gain.exponentialRampToValueAtTime(0.0008, time + 0.05);
+
+    src.connect(filt);
+    filt.connect(g);
+    g.connect(this.songGain);
+    src.start(time);
   }
 
   /** Toggle mute. Safe to call before any gesture — boots the context on first call. */
@@ -91,15 +210,17 @@ export class AudioController {
     return this._muted;
   }
 
-  /** Call when entering a new scroll chapter (0–4). Shifts field pad timbre. */
+  /** Call when entering a new scroll chapter (0–4). Brightens/dulls the
+   *  pluck voice's filter per chapter, so the song's timbre visibly tracks
+   *  scroll position instead of staying static. */
   setChapter(n: number) {
-    if (n === this._chapter || !this.ctx || !this.fieldFilter) return;
+    if (n === this._chapter || !this.ctx || !this.pluckFilter) return;
     this._chapter = n;
-    // Chapter 4 (Research): narrow to a clean 440 Hz tone — "the resolved signal"
-    const freq = n === 4 ? 440 : Math.max(200, 400 - n * 20);
-    const q = n === 4 ? 40 : 8;
-    this.fieldFilter.frequency.setTargetAtTime(freq, this.ctx.currentTime, 2);
-    this.fieldFilter.Q.setTargetAtTime(q, this.ctx.currentTime, 2);
+    // Chapter 4 (Research): narrow, focused tone — "the resolved signal".
+    const freq = n === 4 ? 3400 : 1400 + n * 350;
+    const q = n === 4 ? 3 : 0.7;
+    this.pluckFilter.frequency.setTargetAtTime(freq, this.ctx.currentTime, 1.5);
+    this.pluckFilter.Q.setTargetAtTime(q, this.ctx.currentTime, 1.5);
   }
 
   /** Brief sine chirp on cursor interaction — 200 ms debounce. */
