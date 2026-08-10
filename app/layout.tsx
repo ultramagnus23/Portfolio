@@ -5,11 +5,11 @@ import Nav from "@/components/Nav";
 import ScrollProgress from "@/components/ScrollProgress";
 
 export const metadata: Metadata = {
-  title: "Chaitanya Tripathi — Builder & Researcher",
+  title: "Chaitanya Tripathi · Builder & Researcher",
   description:
-    "First-year CS + Entrepreneurship student at Ashoka University building production-scale systems — college-admissions intelligence, food-safety pipelines, restaurant analytics — and studying computational holography.",
+    "First-year CS + Entrepreneurship student at Ashoka University building production-scale systems (college-admissions intelligence, food-safety pipelines, restaurant analytics) and studying computational holography.",
   openGraph: {
-    title: "Chaitanya Tripathi — Builder & Researcher",
+    title: "Chaitanya Tripathi · Builder & Researcher",
     description:
       "Production-scale ML systems and computational-holography research. CollegeOS, FoodSafe India, Meza, HoloForge.",
     url: "https://ctport2026.vercel.app",

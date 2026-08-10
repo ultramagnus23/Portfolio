@@ -22,7 +22,7 @@ export default function FoodSafeScene({ accent }: { accent: string }) {
   const [inView, setInView] = useState(false);
 
   return (
-    <SceneFrame title="foodsafe — pipeline" accent={accent}>
+    <SceneFrame title="foodsafe · pipeline" accent={accent}>
       <motion.div
         className="grid md:grid-cols-[auto_1fr_auto] gap-8 items-center"
         initial={{ opacity: 0 }}
@@ -79,7 +79,7 @@ export default function FoodSafeScene({ accent }: { accent: string }) {
         animate={inView ? { opacity: 1 } : {}}
         transition={{ delay: 1.6, duration: 0.5 }}
       >
-        confidence ≥ 0.75 trust gate — district-risk model (Random Forest)
+        confidence ≥ 0.75 trust gate, district-risk model (Random Forest)
       </motion.p>
     </SceneFrame>
   );

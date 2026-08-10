@@ -1,7 +1,7 @@
 import { now, nowLastUpdated } from "@/data/now";
 
 export const metadata = {
-  title: "Now — Chaitanya Tripathi",
+  title: "Now · Chaitanya Tripathi",
   description: "What Chaitanya Tripathi is actively working on right now.",
 };
 
