@@ -19,7 +19,7 @@ export const skills: Record<string, Skill[]> = {
       name: "TypeScript",
       level: "strong",
       usedInSlugs: ["collegeos", "meza"],
-      what: "Primary language across all current product work — CollegeOS and Meza front-end and API.",
+      what: "Primary language across all current product work: CollegeOS and Meza front-end and API.",
     },
     {
       name: "JavaScript",
@@ -57,7 +57,7 @@ export const skills: Record<string, Skill[]> = {
       name: "Next.js",
       level: "learning",
       usedInSlugs: [],
-      what: "App Router, Server Components, static generation — this portfolio is the primary exercise.",
+      what: "App Router, Server Components, static generation. This portfolio is the primary exercise.",
     },
     {
       name: "Node.js",
@@ -139,7 +139,7 @@ export const skills: Record<string, Skill[]> = {
       name: "NumPy / SciPy",
       level: "learning",
       usedInSlugs: ["holoforge"],
-      what: "Angular-Spectrum wave propagation and Gerchberg-Saxton phase retrieval — HoloForge core.",
+      what: "Angular-Spectrum wave propagation and Gerchberg-Saxton phase retrieval. HoloForge core.",
     },
     {
       name: "ML pipelines",
@@ -151,7 +151,7 @@ export const skills: Record<string, Skill[]> = {
       name: "Probability calibration",
       level: "learning",
       usedInSlugs: ["collegeos"],
-      what: "Chancing model in CollegeOS — maps score distributions to admit-probability buckets.",
+      what: "Chancing model in CollegeOS. Maps score distributions to admit-probability buckets.",
     },
     {
       name: "Web scraping",
@@ -177,7 +177,7 @@ export const skills: Record<string, Skill[]> = {
       name: "OAuth",
       level: "strong",
       usedInSlugs: ["collegeos"],
-      what: "Auth layer for CollegeOS — Google SSO, JWT session management.",
+      what: "Auth layer for CollegeOS. Google SSO, JWT session management.",
     },
     {
       name: "System design",

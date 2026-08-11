@@ -18,7 +18,7 @@ export default function CollegeOSScene({ accent }: { accent: string }) {
   const [typed, setTyped] = useState(false);
 
   return (
-    <SceneFrame title="collegeos.app — search" accent={accent}>
+    <SceneFrame title="collegeos.app · search" accent={accent}>
       <div className="font-mono text-sm text-white/80 mb-6 flex items-center gap-2">
         <span style={{ color: accent }}>❯</span>
         <TypeLine text="cs, reach schools, need aid, us" onDone={() => setTyped(true)} />

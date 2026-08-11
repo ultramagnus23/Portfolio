@@ -40,7 +40,7 @@ export default function HoloForgeScene({ accent }: { accent: string }) {
   const noiseAmt = current.ssim === null ? 0 : 1 - current.ssim;
 
   return (
-    <SceneFrame title="holoforge — phase-bit sweep" accent={accent}>
+    <SceneFrame title="holoforge · phase-bit sweep" accent={accent}>
       <motion.div
         className="flex flex-col md:flex-row items-center gap-8"
         initial={{ opacity: 0 }}
@@ -93,7 +93,7 @@ export default function HoloForgeScene({ accent }: { accent: string }) {
         </div>
       </motion.div>
       <p className="font-mono text-[10px] text-[#555] mt-6">
-        SSIM vs. phase-quantisation depth — the 1-bit cliff is a measured result, not a rendering artefact
+        SSIM vs. phase-quantisation depth. The 1-bit cliff is a measured result, not a rendering artefact
       </p>
     </SceneFrame>
   );

@@ -4,6 +4,6 @@ export const awards = [
   { title: "Maverick Munner Award", detail: "School recognition" },
   { title: "Summa Cum Laude", detail: "Grade 10 IGCSE" },
   { title: "Excellence in Computers", detail: "Grade 11" },
-  { title: "School Topper — Business Management AS", detail: "Cambridge A-Level" },
+  { title: "School Topper, Business Management AS", detail: "Cambridge A-Level" },
   { title: "India Mobile Congress 2023", detail: "One of 5 schools nationally" }
 ];

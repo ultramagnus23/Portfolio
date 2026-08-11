@@ -71,7 +71,7 @@ function HeroTelemetry() {
 function ChapterLabel({ n, label }: { n: string; label: string }) {
   return (
     <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40 mb-6">
-      {n} — {label}
+      {n} · {label}
     </p>
   );
 }
@@ -250,8 +250,8 @@ function HomeContent() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7, duration: 0.6 }}
               >
-                I build production-scale systems — college-admissions intelligence, food-safety
-                pipelines, restaurant analytics — and study the physics underneath them, like where
+                I build production-scale systems: college-admissions intelligence, food-safety
+                pipelines, restaurant analytics. And I study the physics underneath them, like where
                 a hologram stops looking real.
               </motion.p>
 
@@ -322,12 +322,12 @@ function HomeContent() {
             >
               <div className="text-scrim" aria-hidden="true" />
               <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40">
-                02 — Reconstruction
+                02 · Reconstruction
               </p>
 
               <p className="text-white/80 font-body leading-[1.8] text-base md:text-lg">
                 Here&apos;s the throughline, if you want one: I keep building systems that make
-                something messy legible. CollegeApp started it — I was sixteen, six thousand people
+                something messy legible. CollegeApp started it. I was sixteen, six thousand people
                 showed up, and I learned a problem is only real if strangers care. CollegeOS is the
                 serious version. Meza does it for restaurants; FoodSafe does it for the food itself,
                 pulling toxins out of government PDFs nobody reads.
@@ -335,16 +335,16 @@ function HomeContent() {
 
               <p className="text-white/80 font-body leading-[1.8] text-base md:text-lg">
                 But I don&apos;t think of myself as only a builder. I&apos;ve spent time recording
-                the soundscape around Jama Masjid — the azaan, the pigeons, a thousand overlapping
-                conversations — trying to compose <em>with</em> a place instead of about it. I design
+                the soundscape around Jama Masjid, the azaan, the pigeons, a thousand overlapping
+                conversations, trying to compose <em>with</em> a place instead of about it. I design
                 murder-mystery games for my friends, which is really just systems design with
-                suspects. And lately I&apos;m obsessed with holographic displays — not as a product,
+                suspects. And lately I&apos;m obsessed with holographic displays. Not as a product,
                 just because the question of when a fake image starts fooling a real eye is genuinely
                 beautiful to me.
               </p>
 
               <p className="text-white/80 font-body leading-[1.8] text-base md:text-lg">
-                I&apos;m nineteen. The actual skill is finding signal in noise — whether the noise
+                I&apos;m nineteen. The actual skill is finding signal in noise, whether the noise
                 is admissions data, a POS export, or a 532-nanometre wavefront. If you&apos;re
                 building something that needs that, let&apos;s talk.
               </p>
@@ -373,7 +373,7 @@ function HomeContent() {
             style={{ background: "rgba(10,10,10,0.85)", backdropFilter: "blur(8px)" }}
           >
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/40 pointer-events-none">
-              03 — Systems
+              03 · Systems
             </span>
             <div className="flex-1 h-px bg-signal/10" />
           </div>
@@ -418,7 +418,7 @@ function HomeContent() {
 
             <div className="mt-4">
               <p className="font-mono text-[11px] uppercase tracking-wider text-[#666] mb-2 pt-8">
-                Earlier — the track record
+                Earlier · the track record
               </p>
               <div>
                 {earlierProjects.map((p, i) => (
@@ -473,7 +473,7 @@ function HomeContent() {
               className="font-mono text-[10px] tracking-[0.3em] uppercase pointer-events-none"
               style={{ color: "rgba(94,140,219,0.5)" }}
             >
-              04 — Research
+              04 · Research
             </span>
             <div className="flex-1 h-px" style={{ background: "rgba(94,140,219,0.12)" }} />
           </div>
@@ -489,7 +489,7 @@ function HomeContent() {
             style={{ background: "rgba(10,10,10,0.85)", backdropFilter: "blur(8px)" }}
           >
             <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/20 pointer-events-none">
-              05 — Transmission
+              05 · Transmission
             </span>
             <div className="flex-1 h-px bg-white/5" />
           </div>

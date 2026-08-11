@@ -12,7 +12,7 @@ export const now: NowItem[] = [
   {
     heading: "Building",
     content:
-      "CollegeOS toward launch — canonical schema stable, keyword + trigram recommendation pipeline and chancing service wired. Meza analytics engines running against uploaded demo data.",
+      "CollegeOS toward launch: canonical schema stable, keyword + trigram recommendation pipeline and chancing service wired. Meza analytics engines running against uploaded demo data.",
   },
   {
     heading: "Researching",
@@ -27,7 +27,7 @@ export const now: NowItem[] = [
   {
     heading: "Thinking about",
     content:
-      "Where physical metrics stop predicting what people actually perceive — in holograms, and in products.",
+      "Where physical metrics stop predicting what people actually perceive, in holograms, and in products.",
   },
   {
     heading: "Not doing",

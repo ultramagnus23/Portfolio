@@ -32,7 +32,7 @@ export default function MezaScene({ accent }: { accent: string }) {
   const [live, setLive] = useState(false);
 
   return (
-    <SceneFrame title="meza — experience console" accent={accent}>
+    <SceneFrame title="meza · experience console" accent={accent}>
       <motion.div
         className="grid md:grid-cols-[auto_1fr] gap-8 items-center"
         initial={{ opacity: 0 }}
@@ -62,7 +62,7 @@ export default function MezaScene({ accent }: { accent: string }) {
               </div>
             ))}
           </div>
-          <p className="font-mono text-[9px] text-[#555] mt-3">anonymous occupancy — no faces, no IDs</p>
+          <p className="font-mono text-[9px] text-[#555] mt-3">anonymous occupancy, no faces, no IDs</p>
         </div>
 
         {/* Environmental conditions */}

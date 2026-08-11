@@ -11,8 +11,8 @@ import CameraRig from "./CameraRig";
 // Enough points that the formations (orb, wavefront, lattice, interference,
 // singularity) read as clear shapes rather than static — but not so dense
 // the cloud turns into distracting noise.
-const DESKTOP_COUNT = 12000;
-const MOBILE_COUNT = 4500;
+const DESKTOP_COUNT = 18000;
+const MOBILE_COUNT = 6500;
 
 /**
  * The persistent backdrop for the whole scroll arc: one GPGPU-style point

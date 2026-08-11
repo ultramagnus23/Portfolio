@@ -153,7 +153,7 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
               <ul className="space-y-3">
                 {project.technicalDecisions.map((d, i) => (
                   <li key={i} className="flex gap-3 text-[#888] font-body">
-                    <span className="shrink-0" style={{ color: `${project.accent}88` }}>—</span>
+                    <span className="shrink-0" style={{ color: `${project.accent}88` }}>·</span>
                     {d}
                   </li>
                 ))}
