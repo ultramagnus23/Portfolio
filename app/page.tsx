@@ -9,6 +9,7 @@ import NowBar from "@/components/NowBar";
 import ScrambleText from "@/components/ScrambleText";
 import Magnetic from "@/components/Magnetic";
 import ProjectStation from "@/components/ProjectStation";
+import ProjectRow from "@/components/ProjectRow";
 import ResearchSection from "@/components/ResearchSection";
 import Timeline from "@/components/Timeline";
 import SkillCloud from "@/components/SkillCloud";
@@ -132,7 +133,7 @@ function HomeContent() {
               trigger: ch2Ref.current,
               start: "top bottom",
               end: "top 15%",
-              scrub: 0.6,
+              scrub: 0.35,
             },
           }
         );
@@ -154,7 +155,7 @@ function HomeContent() {
               trigger: ch2Ref.current,
               start: "bottom 90%",
               end: "bottom 10%",
-              scrub: 0.6,
+              scrub: 0.35,
             },
           }
         );
@@ -169,7 +170,7 @@ function HomeContent() {
             trigger: ch5Ref.current,
             start: "top bottom",
             end: "top 45%",
-            scrub: 0.6,
+            scrub: 0.35,
           },
         });
         wipeTl
@@ -208,13 +209,13 @@ function HomeContent() {
             CHAPTER 1 — SIGNAL
             300vh wrapper; section is sticky so it holds while you scroll through
             ─────────────────────────────────────────────────────────────────── */}
-        <div ref={ch1Ref} style={{ height: "300vh", position: "relative" }}>
+        <div ref={ch1Ref} style={{ height: "190vh", position: "relative" }}>
           <section
             id="chapter-1"
             className="relative flex flex-col justify-center overflow-hidden"
             style={{ position: "sticky", top: 0, height: "100vh" }}
           >
-            <div className="relative z-10 px-6 md:px-16 pt-24">
+            <div className="relative z-10 px-6 md:px-16 pt-24 pb-28">
               <div className="text-scrim" aria-hidden="true" />
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -250,9 +251,12 @@ function HomeContent() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7, duration: 0.6 }}
               >
-                I build production-scale systems: college-admissions intelligence, food-safety
-                pipelines, restaurant analytics. And I study the physics underneath them, like where
-                a hologram stops looking real.
+                Four projects, four domains, one habit: I build the check that catches when a
+                number stops being trustworthy. CollegeOS chances admissions and tells you when
+                the model is guessing. Meza flags data leaks it can&apos;t back up instead of
+                inventing one. FoodSafe India screens government records for fraud with the same
+                statistics regulators use. HoloForge caught a bug that made two different results
+                look identical, by checking against a baseline instead of trusting a clean curve.
               </motion.p>
 
               <motion.div
@@ -282,17 +286,7 @@ function HomeContent() {
               </motion.div>
             </div>
 
-            <div className="absolute bottom-8 left-6 right-6 md:left-16 md:right-16 flex items-end justify-between">
-              <motion.div
-                className="flex flex-col items-center gap-2"
-                animate={{ y: [0, 6, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-              >
-                <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-signal/40">
-                  scroll
-                </span>
-                <div className="w-px h-10 bg-gradient-to-b from-signal/60 to-transparent" />
-              </motion.div>
+            <div className="absolute bottom-8 left-6 right-6 md:left-16 md:right-16 flex items-end justify-end">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -301,6 +295,17 @@ function HomeContent() {
                 <HeroTelemetry />
               </motion.div>
             </div>
+
+            <motion.div
+              className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            >
+              <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-signal/80">
+                scroll
+              </span>
+              <div className="w-px h-14 bg-gradient-to-b from-signal to-transparent" />
+            </motion.div>
           </section>
         </div>
 
@@ -308,7 +313,7 @@ function HomeContent() {
             CHAPTER 2 — RECONSTRUCTION
             300vh wrapper; sticky section with scroll-driven text reveal
             ─────────────────────────────────────────────────────────────────── */}
-        <div ref={ch2Ref} style={{ height: "300vh", position: "relative", perspective: "1000px" }}>
+        <div ref={ch2Ref} style={{ height: "190vh", position: "relative", perspective: "1000px" }}>
           <section
             ref={ch2SectionRef}
             id="chapter-2"
@@ -326,11 +331,15 @@ function HomeContent() {
               </p>
 
               <p className="text-white/80 font-body leading-[1.8] text-base md:text-lg">
-                Here&apos;s the throughline, if you want one: I keep building systems that make
-                something messy legible. CollegeApp started it. I was sixteen, six thousand people
-                showed up, and I learned a problem is only real if strangers care. CollegeOS is the
-                serious version. Meza does it for restaurants; FoodSafe does it for the food itself,
-                pulling toxins out of government PDFs nobody reads.
+                Here&apos;s the throughline, if you want one: I build the check that catches when a
+                number stops being trustworthy. CollegeOS tracks its own chancing model with a
+                Brier score and falls back to a transparent heuristic the moment the model isn&apos;t
+                earning its confidence. Meza&apos;s data-quality profiler suppresses any finding the
+                source data can&apos;t support, and &quot;no leak found&quot; is a real answer it can
+                give. FoodSafe India screens government lab data for fraud with Benford&apos;s Law
+                and reports it at its true stage, not a flattering one. It started with CollegeApp:
+                I was sixteen, six thousand people showed up, and I learned a problem is only real
+                if strangers care.
               </p>
 
               <p className="text-white/80 font-body leading-[1.8] text-base md:text-lg">
@@ -344,9 +353,12 @@ function HomeContent() {
               </p>
 
               <p className="text-white/80 font-body leading-[1.8] text-base md:text-lg">
-                I&apos;m nineteen. The actual skill is finding signal in noise, whether the noise
-                is admissions data, a POS export, or a 532-nanometre wavefront. If you&apos;re
-                building something that needs that, let&apos;s talk.
+                I&apos;m nineteen. HoloForge is the clearest version of the habit: it caught a
+                seed-reuse bug producing byte-identical PSNR across seeds, because I checked
+                against an oracle baseline instead of trusting a clean-looking curve. The actual
+                skill is finding signal in noise, whether the noise is admissions data, a POS
+                export, or a 532-nanometre wavefront. If you&apos;re building something that needs
+                that, let&apos;s talk.
               </p>
 
               <div className="flex gap-6 pt-2">
@@ -411,9 +423,24 @@ function HomeContent() {
             <SectionHeading eyebrow="Selected work">Things I&apos;ve built</SectionHeading>
             <p className="text-[#888] font-body -mt-6 mb-4">Currently shipping.</p>
             <div>
-              {currentProjects.map((project, i) => (
-                <ProjectStation key={project.id} project={project} index={i} />
-              ))}
+              {currentProjects
+                .filter((p) => p.featured)
+                .map((project, i) => (
+                  <ProjectStation key={project.id} project={project} index={i} />
+                ))}
+            </div>
+
+            <div className="mt-4">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-[#666] mb-2 pt-8">
+                Also in progress
+              </p>
+              <div>
+                {currentProjects
+                  .filter((p) => !p.featured)
+                  .map((project, i) => (
+                    <ProjectRow key={project.id} project={project} index={i} />
+                  ))}
+              </div>
             </div>
 
             <div className="mt-4">

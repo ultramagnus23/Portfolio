@@ -47,6 +47,11 @@ export default function ParticleField({ count, pointer }: ParticleFieldProps) {
   const entranceStart = useRef<number | null>(null);
   const workColor = useRef(new THREE.Color());
   const accentColor = useRef(new THREE.Color());
+  // Eased separately from the text/accent swap itself, so the field drifts
+  // into a project's color over ~a second instead of snapping the instant
+  // the text does. Once it arrives, the tint reads as more saturated than
+  // before (see ACCENT_MIX below) — apparent, just not synchronous.
+  const accentProgress = useRef(0);
 
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -92,7 +97,7 @@ export default function ParticleField({ count, pointer }: ParticleFieldProps) {
     []
   );
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const mat = materialRef.current;
     if (!mat) return;
 
@@ -108,9 +113,19 @@ export default function ParticleField({ count, pointer }: ParticleFieldProps) {
 
     const colorT = smoothstep(0.67, 0.8, p);
     workColor.current.copy(SIGNAL).lerp(PHASE, colorT);
-    if (activeAccent && p > BANDS[2] && p < BANDS[3]) {
-      accentColor.current.set(activeAccent);
-      workColor.current.lerp(accentColor.current, 0.55);
+
+    // The field's accent tint is decoupled from the text color swap: it eases
+    // toward (or away from) the active project's color on its own clock
+    // rather than snapping in lockstep with whatever triggered it. When it
+    // does land, the blend goes further (ACCENT_MIX) so the shift reads
+    // clearly instead of as a faint wash.
+    const wantsAccent = Boolean(activeAccent) && p > BANDS[2] && p < BANDS[3];
+    if (activeAccent) accentColor.current.set(activeAccent);
+    const ACCENT_EASE = 1 - Math.exp(-delta / 0.9); // ~0.9s time constant
+    accentProgress.current += ((wantsAccent ? 1 : 0) - accentProgress.current) * ACCENT_EASE;
+    const ACCENT_MIX = 0.7;
+    if (accentProgress.current > 0.001) {
+      workColor.current.lerp(accentColor.current, accentProgress.current * ACCENT_MIX);
     }
 
     // One-time entrance: reconstruct from the noise seed into the orb over

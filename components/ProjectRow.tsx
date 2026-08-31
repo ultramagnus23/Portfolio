@@ -2,21 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-
-interface Project {
-  id: string;
-  slug: string;
-  title: string;
-  tagline: string;
-  description: string;
-  stack: string[];
-  status: string;
-  year: number;
-  accent: string;
-  github?: string;
-  liveUrl?: string;
-  hasCaseStudy: boolean;
-}
+import type { Project } from "@/data/projects";
 
 export default function ProjectRow({
   project,
@@ -48,14 +34,32 @@ export default function ProjectRow({
       <div className="relative py-12 px-8 md:px-16 group-hover:bg-white/[0.02] transition-colors">
         <div className="flex-1 space-y-4">
           <div className="flex items-center gap-3">
-            <span
-              className="text-xs font-mono px-2 py-0.5 border"
-              style={{
-                color: statusColors[project.status] || "#888",
-                borderColor: statusColors[project.status] || "#888",
-              }}
-            >
-              {project.status}
+            {project.status === "live" && project.liveUrl ? (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-mono px-2 py-0.5 border hover:bg-white/5 transition-colors"
+                style={{
+                  color: statusColors[project.status] || "#888",
+                  borderColor: statusColors[project.status] || "#888",
+                }}
+              >
+                {project.status} ↗
+              </a>
+            ) : (
+              <span
+                className="text-xs font-mono px-2 py-0.5 border"
+                style={{
+                  color: statusColors[project.status] || "#888",
+                  borderColor: statusColors[project.status] || "#888",
+                }}
+              >
+                {project.status}
+              </span>
+            )}
+            <span className="text-xs font-mono px-2 py-0.5 border border-white/10 text-[#888]">
+              {project.stage}
             </span>
             <span className="text-xs text-[#555] font-mono">{project.year}</span>
           </div>

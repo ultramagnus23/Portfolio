@@ -139,28 +139,58 @@ export default function ResearchSection() {
           </div>
         </div>
 
-        {/* status + link */}
+        {/* status + links, split by part */}
         <motion.div
-          className="mt-16 border border-white/10 bg-white/[0.02] p-6 md:p-8 max-w-3xl"
+          className="mt-16 grid md:grid-cols-2 gap-6 max-w-3xl"
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-2 h-2 rounded-full bg-signal animate-pulse" />
-            <span className="font-mono text-[11px] uppercase tracking-wider text-signal">{research.statusLabel}</span>
+          <div className="border border-white/10 bg-white/[0.02] p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full bg-signal animate-pulse" />
+              <span className="font-mono text-[11px] uppercase tracking-wider text-signal">Part 1 · published</span>
+            </div>
+            <p className="font-body text-white mb-2">{research.part1.title}</p>
+            <p className="text-[#aaa] font-body leading-relaxed">{research.part1.finding}</p>
+            <a
+              href={research.part1.paperUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-5 font-mono text-sm text-signal hover:text-white transition-colors"
+            >
+              Read Part 1 on Optica Open ↗
+            </a>
           </div>
-          <p className="text-[#aaa] font-body leading-relaxed">{research.status}</p>
-          <a
-            href={research.repo}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-5 font-mono text-sm text-signal hover:text-white transition-colors"
-          >
-            HoloForge on GitHub ↗
-          </a>
+
+          <div className="border border-white/10 bg-white/[0.02] p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full bg-[#888]" />
+              <span className="font-mono text-[11px] uppercase tracking-wider text-[#888]">{research.part2.stageLabel}</span>
+            </div>
+            <p className="font-body text-white mb-2">{research.part2.title}</p>
+            <p className="text-[#aaa] font-body leading-relaxed">{research.part2.note}</p>
+            <a
+              href={research.repo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-5 font-mono text-sm text-signal hover:text-white transition-colors"
+            >
+              HoloForge on GitHub ↗
+            </a>
+          </div>
         </motion.div>
+
+        <motion.p
+          className="text-[#666] font-body text-sm leading-relaxed mt-6 max-w-2xl"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+        >
+          {research.validationNote}
+        </motion.p>
       </div>
     </section>
   );

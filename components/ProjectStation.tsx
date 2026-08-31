@@ -74,8 +74,26 @@ export default function ProjectStation({ project, index }: { project: Project; i
       <div className="relative max-w-4xl">
         <div className="flex items-center gap-3 mb-6">
           <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: accent }} />
-          <span className="font-mono text-xs uppercase tracking-[0.2em]" style={{ color: accent }}>
-            {STATUS_LABEL[project.status] ?? project.status}
+          {project.status === "live" && project.liveUrl ? (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-cursor-text="open"
+              className="font-mono text-xs uppercase tracking-[0.2em] underline decoration-dotted underline-offset-4 hover:opacity-80 transition-opacity"
+              style={{ color: accent }}
+            >
+              {STATUS_LABEL[project.status] ?? project.status} ↗
+            </a>
+          ) : (
+            <span className="font-mono text-xs uppercase tracking-[0.2em]" style={{ color: accent }}>
+              {STATUS_LABEL[project.status] ?? project.status}
+            </span>
+          )}
+          <span
+            className="font-mono text-[10px] uppercase tracking-wider text-[#888] px-1.5 py-0.5 border border-white/10"
+          >
+            {project.stage}
           </span>
           <span className="font-mono text-xs text-[#555]">{project.year}</span>
         </div>

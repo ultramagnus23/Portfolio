@@ -25,6 +25,10 @@ export interface Project {
   stack: string[];
   github: string;
   liveUrl: string;
+  /** Short display label for the stage pill (e.g. "Live", "Sample-validated"). */
+  stage: string;
+  /** Link to a published paper, if this project has one. */
+  paperUrl?: string;
   featured: boolean;
   hasCaseStudy: boolean;
 }
@@ -35,7 +39,7 @@ export const projects: Project[] = [
     slug: "collegeos",
     title: "CollegeOS",
     tagline: "Admissions is a black box. We're opening it.",
-    status: "in-progress",
+    status: "live",
     category: "current",
     year: 2026,
     accent: "#00FF94",
@@ -57,7 +61,7 @@ export const projects: Project[] = [
     metrics: [
       { label: "Predecessor reach", value: "6,000+ users (CollegeApp)" },
       { label: "Institutions", value: "~8,200 across 8+ countries" },
-      { label: "Status", value: "Active development" },
+      { label: "Status", value: "Live" },
     ],
     technicalDecisions: [
       "Canonical schema over fragmented joins. Kill duplicate institution representations before they multiply",
@@ -74,6 +78,7 @@ export const projects: Project[] = [
     stack: ["React", "TypeScript", "Node.js", "Express", "PostgreSQL", "Supabase", "Python", "GitHub Actions"],
     github: "https://github.com/ultramagnus23/CollegeOS",
     liveUrl: "https://college-os.vercel.app/",
+    stage: "Live",
     featured: true,
     hasCaseStudy: true,
   },
@@ -121,6 +126,7 @@ export const projects: Project[] = [
     stack: ["Next.js", "TypeScript", "React", "Supabase", "PostgreSQL", "Python", "Recharts"],
     github: "https://github.com/ultramagnus23/Meza",
     liveUrl: "",
+    stage: "Sample-validated",
     featured: true,
     hasCaseStudy: true,
   },
@@ -174,6 +180,7 @@ export const projects: Project[] = [
     stack: ["Python", "FastAPI", "PostgreSQL", "Next.js", "Tesseract OCR", "spaCy", "scikit-learn", "Airflow"],
     github: "https://github.com/ultramagnus23/FoodSafe",
     liveUrl: "https://foodsafev2.vercel.app/",
+    stage: "Sample-validated",
     featured: true,
     hasCaseStudy: true,
   },
@@ -189,7 +196,7 @@ export const projects: Project[] = [
     description:
       "A computational-holography simulation framework that models a phase-only holographic display and systematically degrades it (resolution, phase-quantisation bits, viewing angle, speckle, depth planes), scoring each reconstruction with both physical (PSNR/SSIM) and perceptual metrics.",
     longDescription:
-      "HoloForge is the engine behind a research question: where does optical fidelity diverge from visual experience? It propagates light with the Angular-Spectrum Method, retrieves phase with Gerchberg-Saxton, then sweeps the constraints a real SLM display lives under and measures where quality actually breaks. The recurring finding: physical and perceptual quality diverge, and that gap is where display-engineering budget should be spent. Working paper in progress, targeting arXiv cs.GR / eess.IV.",
+      "HoloForge is the engine behind a research question: where does optical fidelity diverge from visual experience? It propagates light with the Angular-Spectrum Method, retrieves phase with Gerchberg-Saxton, then sweeps the constraints a real SLM display lives under and measures where quality actually breaks. The recurring finding: physical and perceptual quality diverge, and that gap is where display-engineering budget should be spent. Part 1 is published as an Optica Open preprint; Part 2 is in progress.",
     problem:
       "Holographic-display research optimises for physical fidelity metrics that don't always track what a viewer perceives. Where's the real perceptual cliff for each degradation?",
     approach:
@@ -215,11 +222,14 @@ export const projects: Project[] = [
     whatDidntWork:
       "1-bit phase quantisation is a true cliff (SSIM collapses to ~0.003) while 2-bit survives. That's the kind of non-obvious threshold the framework exists to surface.",
     outcome:
-      "Simulation framework and degradation results complete; Part 1 is out as a preprint (arXiv / Optica Open). Part 2 is in progress: a media-in-the-loop model with a differentiable photopolymer recording step. Next experiment: gradient-descent phase retrieval (PyTorch autograd) benchmarked against Gerchberg-Saxton.",
+      "Simulation framework and degradation results complete; Part 1 is out as an Optica Open preprint. Part 2 is in progress: a media-in-the-loop model with a differentiable photopolymer recording step. Next experiment: gradient-descent phase retrieval (PyTorch autograd) benchmarked against Gerchberg-Saxton.",
     whatIdDoDifferently: "Build the gradient-descent solver alongside GS from the start, so every sweep compares both retrieval methods.",
     stack: ["Python", "NumPy", "SciPy", "scikit-image", "Matplotlib", "OpenCV", "Jupyter"],
     github: "https://github.com/ultramagnus23/HoloForge",
     liveUrl: "",
+    paperUrl:
+      "https://preprints.opticaopen.org/articles/preprint/Systematic_Degradation_Analysis_in_Phase-Only_Computational_Holography_A_Simulation_Framework/32874356?file=66233162",
+    stage: "Published",
     featured: true,
     hasCaseStudy: true,
   },
@@ -261,6 +271,7 @@ export const projects: Project[] = [
     stack: ["Electron", "TypeScript", "Web Audio API", "MediaPipe", "Python", "Essentia", "SQLite"],
     github: "https://github.com/ultramagnus23/Music-Morph",
     liveUrl: "",
+    stage: "Scaffold",
     featured: false,
     hasCaseStudy: false,
   },
@@ -300,6 +311,7 @@ export const projects: Project[] = [
     stack: ["Next.js", "TypeScript", "IndexedDB", "Vitest"],
     github: "https://github.com/ultramagnus23/Drill",
     liveUrl: "",
+    stage: "Shipped",
     featured: false,
     hasCaseStudy: false,
   },
@@ -337,7 +349,8 @@ export const projects: Project[] = [
     whatIdDoDifferently: "",
     stack: ["Next.js", "TypeScript", "Tailwind CSS", "Resend"],
     github: "https://github.com/ultramagnus23/TheGlobal",
-    liveUrl: "https://the-global-zeta.vercel.app",
+    liveUrl: "https://global.co.in",
+    stage: "Live",
     featured: false,
     hasCaseStudy: false,
   },
@@ -375,6 +388,7 @@ export const projects: Project[] = [
     stack: ["Next.js", "TypeScript", "Tailwind CSS", "Neon Postgres", "Auth.js", "Vercel Blob"],
     github: "https://github.com/ultramagnus23/Dash",
     liveUrl: "https://dash-eta-six.vercel.app",
+    stage: "Scaffold",
     featured: false,
     hasCaseStudy: false,
   },
@@ -402,6 +416,7 @@ export const projects: Project[] = [
     stack: ["Next.js", "TypeScript", "Tailwind CSS"],
     github: "",
     liveUrl: "https://airthra.com/",
+    stage: "Live",
     featured: false,
     hasCaseStudy: false,
   },
@@ -442,6 +457,7 @@ export const projects: Project[] = [
     stack: ["Python", "JavaScript", "Computer Vision", "WiFi Signal Processing", "Carrier Geolocation API"],
     github: "",
     liveUrl: "",
+    stage: "Shipped",
     featured: false,
     hasCaseStudy: true,
   },
@@ -473,6 +489,7 @@ export const projects: Project[] = [
     stack: ["JavaScript", "NLP", "API Integration"],
     github: "",
     liveUrl: "",
+    stage: "Shipped",
     featured: false,
     hasCaseStudy: false,
   },
@@ -506,6 +523,7 @@ export const projects: Project[] = [
     stack: ["Research", "Biotechnology", "Environmental Science", "Financial Modelling"],
     github: "",
     liveUrl: "",
+    stage: "Shipped",
     featured: false,
     hasCaseStudy: true,
   },

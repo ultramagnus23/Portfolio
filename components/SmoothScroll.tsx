@@ -23,7 +23,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     ensureScrollTrigger();
 
     const lenis = new Lenis({
-      duration: 1.1,
+      duration: 0.8,
       easing: (t: number) => 1 - Math.pow(1 - t, 3),
     });
 

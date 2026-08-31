@@ -4,7 +4,7 @@ export const education = {
   location: "Sonipat, India",
   start: 2025,
   expected: 2029,
-  note: "First-year. Building in public alongside coursework.",
+  note: "Second-year. Building in public alongside coursework.",
   coursework: [
     "Discrete Mathematics",
     "Data Structures & Algorithms",

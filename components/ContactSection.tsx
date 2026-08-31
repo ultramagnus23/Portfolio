@@ -32,8 +32,8 @@ export default function ContactSection() {
           viewport={{ once: true }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          I&apos;m open to internships (June–August 2026), freelance projects, and
-          conversations with people building interesting things.
+          Freelance work, collaborations, or just a conversation about something you&apos;re
+          building. Reach out.
         </motion.p>
 
         <motion.div

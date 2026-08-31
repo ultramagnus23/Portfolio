@@ -1,5 +1,12 @@
 export const experience = [
   {
+    role: "Product Strategy Manager",
+    org: "Techmin",
+    period: "2026 – Present",
+    location: "Ashoka University",
+    detail: "Shaping product strategy and roadmap decisions for Techmin."
+  },
+  {
     role: "Marketing Intern",
     org: "Obbserv",
     period: "Apr – Jun 2024",

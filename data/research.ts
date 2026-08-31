@@ -1,6 +1,6 @@
 // The Research section is its own thing — not buried under Projects.
-// Update `status` as the paper progresses. Be honest: it's a preprint in
-// progress, not published. Don't imply otherwise.
+// Update `part2` as that work progresses. Be honest about its stage.
+// Part 1 is genuinely published — link it directly, don't hedge.
 
 export const research = {
   title: "Perception-Driven Computational Holography",
@@ -10,10 +10,20 @@ export const research = {
     "When you degrade a hologram (fewer pixels, coarser phase, a narrower viewing angle), does it actually look worse to a person, or does it just measure worse on the usual physics metrics?",
   premise:
     "Holographic-display research tends to optimise for physical fidelity (PSNR, SSIM). But a viewer doesn't see a number, they see an image. HoloForge simulates a phase-only holographic display end to end, then degrades it one axis at a time to find where physical and perceptual quality stop agreeing. Those divergence points are where real display-engineering budget should go.",
-  // status line — edit as the work progresses
-  statusLabel: "Part 1 preprint out · Part 2 in progress",
-  status:
-    "Simulation framework and degradation sweeps complete, with Part 1 released as a preprint (arXiv / Optica Open). Part 2 is in progress: a media-in-the-loop model with a differentiable photopolymer recording step, plus a gradient-descent phase-retrieval baseline.",
+  part1: {
+    title: "Systematic Degradation Analysis in Phase-Only Computational Holography",
+    paperUrl:
+      "https://preprints.opticaopen.org/articles/preprint/Systematic_Degradation_Analysis_in_Phase-Only_Computational_Holography_A_Simulation_Framework/32874356?file=66233162",
+    finding:
+      "Physical and perceptual quality diverge hardest at 1-bit phase quantization, a true cliff naive PSNR doesn't warn you about.",
+  },
+  part2: {
+    title: "Media-in-the-loop holography",
+    note: "A differentiable photopolymer recording step folded into the CGH optimisation loop, benchmarked against a gradient-descent phase-retrieval baseline.",
+    stageLabel: "At submission · sole author",
+  },
+  validationNote:
+    "Every finding here is cross-checked against an oracle baseline before it's trusted, which is how a seed-reuse bug producing byte-identical PSNR across seeds got caught instead of shipped.",
   methods: [
     {
       name: "Angular-Spectrum propagation",

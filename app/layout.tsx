@@ -5,14 +5,18 @@ import Nav from "@/components/Nav";
 import ScrollProgress from "@/components/ScrollProgress";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://chaitanyatripathi.vercel.app"),
   title: "Chaitanya Tripathi · Builder & Researcher",
   description:
-    "First-year CS + Entrepreneurship student at Ashoka University building production-scale systems (college-admissions intelligence, food-safety pipelines, restaurant analytics) and studying computational holography.",
+    "CS + Entrepreneurship at Ashoka University. Building systems that run in production (admissions intelligence, food-safety pipelines, restaurant analytics) and studying computational holography on the side.",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "Chaitanya Tripathi · Builder & Researcher",
     description:
       "Production-scale ML systems and computational-holography research. CollegeOS, FoodSafe India, Meza, HoloForge.",
-    url: "https://ctport2026.vercel.app",
+    url: "https://chaitanyatripathi.vercel.app",
     siteName: "Chaitanya Tripathi",
   },
 };

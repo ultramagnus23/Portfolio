@@ -39,6 +39,9 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
           >
             {project.status}
           </span>
+          <span className="text-[10px] font-mono px-2 py-0.5 border border-white/10 text-[#888] uppercase tracking-wider">
+            {project.stage}
+          </span>
           <span className="text-[#444] font-mono text-xs">{project.year}</span>
         </div>
       </div>
@@ -70,7 +73,7 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
         </div>
 
         {/* Links row */}
-        {(project.github || project.liveUrl) && (
+        {(project.github || project.liveUrl || project.paperUrl) && (
           <div className="flex gap-6 mb-10">
             {project.github && (
               <a
@@ -90,6 +93,16 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
                 className="font-mono text-sm text-[#888] hover:text-white transition-colors"
               >
                 Live ↗
+              </a>
+            )}
+            {project.paperUrl && (
+              <a
+                href={project.paperUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-sm text-[#888] hover:text-white transition-colors"
+              >
+                Read the paper ↗
               </a>
             )}
           </div>

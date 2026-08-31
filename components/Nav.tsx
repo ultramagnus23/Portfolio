@@ -55,10 +55,15 @@ export default function Nav() {
 
         <button
           onClick={copyEmail}
-          className="flex items-center gap-2 text-signal hover:text-white transition-colors"
+          title="Click to copy email address"
+          aria-label="Copy email address to clipboard"
+          className="relative group flex items-center gap-2 text-signal hover:text-white transition-colors"
         >
           <span className="w-2 h-2 rounded-full bg-signal animate-pulse" />
           {copied ? "copied." : "available"}
+          <span className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap font-mono text-[10px] normal-case tracking-normal text-[#999] bg-[#111] border border-white/10 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            click to copy email
+          </span>
         </button>
 
         <AudioToggle />
